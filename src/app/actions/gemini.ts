@@ -8,7 +8,9 @@ import { generateRuleBasedInsights } from "@/lib/rules";
 import { logger } from "@/lib/logger";
 import { checkRateLimit } from "@/lib/rate-limiter";
 import { headers } from "next/headers";
-const apiKey = process.env.GEMINI_API_KEY;
+import { env } from "@/env";
+
+const apiKey = env.GEMINI_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 /** Return personalized insights, preferring Gemini and falling back to rules. */

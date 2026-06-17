@@ -17,11 +17,13 @@ const eslintConfig = [
     "next/core-web-vitals",
     "next/typescript",
     "plugin:jsx-a11y/recommended",
-    "plugin:security/recommended-legacy"
+    "plugin:security/recommended-legacy",
+    "plugin:sonarjs/recommended-legacy"
   ),
   {
     rules: {
-      "security/detect-object-injection": "off"
+      "security/detect-object-injection": "off",
+      "sonarjs/no-nested-conditional": "off"
     }
   },
 ];

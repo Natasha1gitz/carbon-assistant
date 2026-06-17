@@ -14,9 +14,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Carbon Footprint Assistant — Understand, Track & Reduce",
-  description:
-    "Calculate your personal carbon footprint with our intelligent platform. Get AI-powered, personalized reduction recommendations using Google Gemini.",
+  title: "Carbon Footprint Assistant",
+  description: "Track and reduce your personal carbon footprint with AI insights.",
+  openGraph: {
+    title: "Carbon Footprint Assistant",
+    description: "Track and reduce your personal carbon footprint with AI insights.",
+    url: "https://carbon-assistant.vercel.app",
+    siteName: "Carbon Assistant",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Carbon Footprint Assistant",
+    description: "Track and reduce your personal carbon footprint with AI insights.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   keywords: [
     "carbon footprint",
     "sustainability",

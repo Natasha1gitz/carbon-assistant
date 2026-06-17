@@ -25,10 +25,10 @@ export default defineConfig({
         "src/components/**"
       ],
       thresholds: {
-        lines: 90,
-        functions: 90,
-        branches: 80,
-        statements: 90,
+        lines: 100,
+        functions: 100,
+        branches: 100,
+        statements: 100,
       },
     },
   },
