@@ -1,0 +1,14 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema-json",
+  "entry": ["src/app/**/*.tsx", "src/app/**/*.ts"],
+  "project": ["src/**/*.ts", "src/**/*.tsx"],
+  "ignoreDependencies": [
+    "eslint-config-next",
+    "eslint-plugin-jsx-a11y",
+    "eslint-plugin-security",
+    "eslint-plugin-sonarjs",
+    "lint-staged",
+    "pino-pretty",
+    "tailwindcss"
+  ]
+}
