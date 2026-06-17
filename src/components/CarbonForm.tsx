@@ -109,7 +109,11 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
       </div>
 
       {/* Premium Step Indicator */}
-      <div className="flex items-center justify-between mb-8 px-2" aria-label="Form Progress" role="navigation">
+      <div
+        className="flex items-center justify-between mb-8 px-2"
+        aria-label="Form Progress"
+        role="navigation"
+      >
         {STEP_LABELS.map((s, i) => (
           <React.Fragment key={s.num}>
             <button
