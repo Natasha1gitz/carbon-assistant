@@ -98,7 +98,7 @@ export default function RootLayout({
                 <h1 className="text-xl font-bold text-white tracking-tight">
                   Carbon Footprint Assistant
                 </h1>
-                <p className="text-emerald-200/80 text-xs font-medium tracking-wide hidden sm:block">
+                <p className="text-emerald-100/90 text-xs font-medium tracking-wide hidden sm:block">
                   Understand · Track · Reduce
                 </p>
               </div>
@@ -121,10 +121,10 @@ export default function RootLayout({
 
         <footer className="border-t border-slate-200/50 dark:border-slate-800/50 mt-16">
           <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-2">
-            <p className="text-xs text-slate-400 dark:text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Estimates are for awareness and education — not regulatory accounting.
             </p>
-            <p className="text-xs text-slate-400 dark:text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Sources: DEFRA 2023 · EPA · IPCC AR6
             </p>
           </div>
