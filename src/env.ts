@@ -26,6 +26,7 @@ export const env = createEnv({
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     FIREBASE_SERVICE_ACCOUNT_KEY: process.env.FIREBASE_SERVICE_ACCOUNT_KEY,
   },
+  /* istanbul ignore next */
   skipValidation:
     process.env.CI === "true" ||
     process.env.NODE_ENV === "test" ||
