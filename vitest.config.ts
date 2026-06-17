@@ -22,7 +22,7 @@ export default defineConfig({
         "src/app/**",
         "src/hooks/**",
         "src/lib/firebase/**",
-        "src/components/**"
+        "src/components/**",
       ],
       thresholds: {
         lines: 100,

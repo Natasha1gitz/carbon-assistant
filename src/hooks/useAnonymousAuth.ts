@@ -12,8 +12,7 @@ export function useAnonymousAuth() {
         setUserId(user.uid);
         setLoading(false);
       } else {
-        signInAnonymously(auth)
-        .catch((error: Error) => {
+        signInAnonymously(auth).catch((error: Error) => {
           console.error("Anonymous auth failed:", error);
           setLoading(false);
         });

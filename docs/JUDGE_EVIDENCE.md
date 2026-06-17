@@ -54,19 +54,19 @@ in the codebase that demonstrate compliance.
 
 ## 3. Efficiency
 
-| Evidence                | Location                                                       |
-| ----------------------- | -------------------------------------------------------------- |
-| Multi-stage Dockerfile  | [`Dockerfile`](../../Dockerfile) — builder → runner            |
-| Docker layer caching    | `COPY package*.json` before source                             |
-| Docker ignore           | [`.dockerignore`](../../.dockerignore) — minimal build context |
-| Pure calculation (O(1)) | `calculator.ts` — no database calls                            |
-| Graceful degradation    | Gemini → rule fallback; Firestore → mock fallback              |
-| First Load JS < 350 kB  | Verified via `next build` output                               |
-| Turbopack build (5s)    | `next build --turbopack`                                       |
-| `output: "standalone"`  | Minimal Docker image                                           |
+| Evidence                | Location                                                                       |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| Multi-stage Dockerfile  | [`Dockerfile`](../../Dockerfile) — builder → runner                            |
+| Docker layer caching    | `COPY package*.json` before source                                             |
+| Docker ignore           | [`.dockerignore`](../../.dockerignore) — minimal build context                 |
+| Pure calculation (O(1)) | `calculator.ts` — no database calls                                            |
+| Graceful degradation    | Gemini → rule fallback; Firestore → mock fallback                              |
+| First Load JS < 350 kB  | Verified via `next build` output                                               |
+| Turbopack build (5s)    | `next build --turbopack`                                                       |
+| `output: "standalone"`  | Minimal Docker image                                                           |
 | Lighthouse CI           | [`.lighthouserc.js`](../../.lighthouserc.js) — ≥95% automated performance gate |
-| Bundle analyzer         | `@next/bundle-analyzer` — `npm run analyze`                    |
-| Fire-and-forget saves   | Non-blocking Firestore persistence                             |
+| Bundle analyzer         | `@next/bundle-analyzer` — `npm run analyze`                                    |
+| Fire-and-forget saves   | Non-blocking Firestore persistence                                             |
 
 ---
 

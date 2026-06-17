@@ -35,7 +35,7 @@ test("Carbon footprint form end-to-end flow", async ({ page }) => {
 
 test("Handles missing history gracefully (offline/incognito mode)", async ({ page }) => {
   await page.goto("/");
-  
+
   // Fill the form quickly to reach dashboard
   await page.getByLabel(/Car Fuel Type/i).selectOption("petrol");
   await page.getByRole("button", { name: /Next/i }).click();
@@ -43,5 +43,7 @@ test("Handles missing history gracefully (offline/incognito mode)", async ({ pag
   await page.getByRole("button", { name: /Calculate My Footprint/i }).click();
 
   // Results should still load even if history/auth fails or is delayed
-  await expect(page.getByRole("heading", { name: /Your Carbon Footprint/i })).toBeVisible({ timeout: 15000 });
+  await expect(page.getByRole("heading", { name: /Your Carbon Footprint/i })).toBeVisible(
+    { timeout: 15000 }
+  );
 });

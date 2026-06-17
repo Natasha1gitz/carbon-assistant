@@ -11,7 +11,15 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   {
-    ignores: ["node_modules/**", ".next/**", "out/**", "build/**", "next-env.d.ts", "coverage/**", "commitlint.config.mjs"],
+    ignores: [
+      "node_modules/**",
+      ".next/**",
+      "out/**",
+      "build/**",
+      "next-env.d.ts",
+      "coverage/**",
+      "commitlint.config.mjs",
+    ],
   },
   ...compat.extends(
     "next/core-web-vitals",
@@ -23,8 +31,8 @@ const eslintConfig = [
   {
     rules: {
       "security/detect-object-injection": "off",
-      "sonarjs/no-nested-conditional": "off"
-    }
+      "sonarjs/no-nested-conditional": "off",
+    },
   },
 ];
 

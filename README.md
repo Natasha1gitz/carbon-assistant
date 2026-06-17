@@ -12,24 +12,29 @@ through dynamic data inputs and an interactive Google Gemini AI assistant.
 ## 🏆 Hackathon Submission Details
 
 ### 1. Your Chosen Vertical
+
 **Sustainability & Climate Action**
 The Carbon Footprint Assistant addresses the critical need for individual climate awareness by calculating, tracking, and providing actionable insights to reduce personal carbon emissions.
 
 ### 2. Approach and Logic
-Our approach is to bridge the gap between complex emission factors and everyday human behavior. 
+
+Our approach is to bridge the gap between complex emission factors and everyday human behavior.
+
 - **Deterministic Math Engine**: We calculate base emissions strictly using verified science-backed factors (DEFRA, EPA, IEA).
 - **Generative AI Layer**: We feed these precise calculations into Google Gemini 1.5 Flash via structured prompts. Gemini acts as an intelligent coach, contextualizing the math and returning highly tailored, realistic behavioral changes.
 - **Resilience**: The logic operates on a "graceful degradation" model. If the AI is unavailable, the application falls back to a deterministic rules-based engine.
 
 ### 3. How the Solution Works
+
 1. **Understand (Input)**: Users fill out a dynamic form detailing their weekly travel, home energy use, diet, and consumption habits.
 2. **Track (Calculate & Store)**: The app computes the exact `kg CO₂e` breakdown. Using Firebase Anonymous Auth, it securely stores historical entries bound to the device session (zero PII collected).
 3. **Reduce (AI Insights)**: A Server Action sends the user's carbon profile to Google Gemini. The AI returns a JSON array of customized recommendations. The React frontend visualizes these alongside an interactive dashboard.
 
 ### 4. Any Assumptions Made
+
 - We assume standard global average emission factors where specific local grids or variables aren't provided (e.g., using IEA world average for electricity instead of localized zip-code grids).
 - We assume an anonymous, session-based user tracking model is preferred over requiring hard logins to reduce friction and protect user privacy.
-- We assume users want actionable *lifestyle* changes, so the AI is explicitly instructed not to recommend massive infrastructure overhauls (like buying a new Tesla) if they have a small footprint.
+- We assume users want actionable _lifestyle_ changes, so the AI is explicitly instructed not to recommend massive infrastructure overhauls (like buying a new Tesla) if they have a small footprint.
 
 ---
 
