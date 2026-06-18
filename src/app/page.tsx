@@ -9,9 +9,17 @@ import { generateInsights } from "@/app/actions/gemini";
 
 import CarbonForm from "@/components/CarbonForm";
 import Dashboard from "@/components/Dashboard";
-import AiAssistant from "@/components/AiAssistant";
-import HistoryPanel from "@/components/HistoryPanel";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import dynamic from "next/dynamic";
+
+const AiAssistant = dynamic(() => import("@/components/AiAssistant"), {
+  loading: () => <p className="text-center text-slate-400">Loading AI Assistant...</p>,
+  ssr: false, // Offload Gemini client logic to client-side only
+});
+
+const HistoryPanel = dynamic(() => import("@/components/HistoryPanel"), {
+  ssr: false, // User history relies on client-side state
+});
 
 interface HistoryEntry {
   id: string;
@@ -69,7 +77,7 @@ export default function Home() {
         <div
           role="alert"
           aria-live="assertive"
-          className="glass-card p-4 border-red-300 dark:border-red-700 bg-red-50/50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm font-medium rounded-xl"
+          className="glass-card rounded-xl border-red-300 bg-red-50/50 p-4 text-sm font-medium text-red-700 dark:border-red-700 dark:bg-red-900/20 dark:text-red-300"
         >
           {error}
         </div>
@@ -83,15 +91,15 @@ export default function Home() {
       </p>
 
       {/* Hero Section */}
-      <div className="text-center mb-4 animate-slide-up">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100/60 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-sm font-medium mb-6 border border-emerald-200/50 dark:border-emerald-800/50">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-ring" />
+      <div className="animate-slide-up mb-4 text-center">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-emerald-200/50 bg-emerald-100/60 px-4 py-1.5 text-sm font-medium text-emerald-700 dark:border-emerald-800/50 dark:bg-emerald-900/30 dark:text-emerald-300">
+          <span className="animate-pulse-ring h-2 w-2 rounded-full bg-emerald-500" />
           AI-Powered Carbon Intelligence
         </div>
-        <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-5 text-slate-900 dark:text-white">
+        <h2 className="mb-5 text-4xl font-extrabold tracking-tight text-slate-900 md:text-5xl dark:text-white">
           Know Your Impact. <span className="gradient-text">Make a Difference.</span>
         </h2>
-        <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        <p className="mx-auto max-w-2xl text-lg leading-relaxed text-slate-500 dark:text-slate-400">
           Our intelligent platform calculates your carbon footprint and uses AI to provide
           highly personalized, actionable steps to reduce your environmental impact.
         </p>
@@ -99,14 +107,14 @@ export default function Home() {
 
       {loading ? (
         <div
-          className="flex flex-col items-center justify-center p-16 animate-fade-in"
+          className="animate-fade-in flex flex-col items-center justify-center p-16"
           aria-live="polite"
         >
           <div className="relative">
-            <div className="w-14 h-14 border-4 border-emerald-200/50 border-t-emerald-500 rounded-full animate-spin" />
-            <div className="absolute inset-0 w-14 h-14 rounded-full bg-emerald-400/10 animate-ping" />
+            <div className="h-14 w-14 animate-spin rounded-full border-4 border-emerald-200/50 border-t-emerald-500" />
+            <div className="absolute inset-0 h-14 w-14 animate-ping rounded-full bg-emerald-400/10" />
           </div>
-          <p className="mt-4 text-sm text-slate-400 font-medium">Initializing...</p>
+          <p className="mt-4 text-sm font-medium text-slate-400">Initializing...</p>
           <span className="sr-only">Loading application...</span>
         </div>
       ) : !result ? (
@@ -132,11 +140,11 @@ export default function Home() {
               </div>
             ) : (
               <div className="glass-card p-10 text-center" aria-live="polite">
-                <div className="relative inline-block mb-4">
-                  <div className="w-10 h-10 border-4 border-emerald-200/50 border-t-emerald-500 rounded-full animate-spin" />
-                  <div className="absolute inset-0 w-10 h-10 rounded-full bg-emerald-400/10 animate-ping" />
+                <div className="relative mb-4 inline-block">
+                  <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-200/50 border-t-emerald-500" />
+                  <div className="absolute inset-0 h-10 w-10 animate-ping rounded-full bg-emerald-400/10" />
                 </div>
-                <p className="text-slate-500 dark:text-slate-400 font-medium">
+                <p className="font-medium text-slate-500 dark:text-slate-400">
                   Gemini AI is analyzing your footprint...
                 </p>
               </div>
@@ -149,13 +157,13 @@ export default function Home() {
               <HistoryPanel entries={history} />
             </div>
 
-            <div className="text-center mt-10 pt-8 border-t border-slate-200/50 dark:border-slate-800/50">
+            <div className="mt-10 border-t border-slate-200/50 pt-8 text-center dark:border-slate-800/50">
               <button
                 onClick={() => {
                   setResult(null);
                   setInsights(null);
                 }}
-                className="group px-8 py-3 rounded-xl font-semibold text-sm transition-all duration-300 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 hover:text-emerald-700 dark:hover:text-emerald-300 border border-slate-200/50 dark:border-slate-700/50 hover:border-emerald-300 dark:hover:border-emerald-700"
+                className="group rounded-xl border border-slate-200/50 bg-slate-100 px-8 py-3 text-sm font-semibold text-slate-700 transition-all duration-300 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 dark:border-slate-700/50 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-300"
               >
                 ← Recalculate
               </button>

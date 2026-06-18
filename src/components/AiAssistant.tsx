@@ -46,11 +46,11 @@ export default function AiAssistant({ insights }: AiAssistantProps) {
   };
 
   return (
-    <div className="glass-card p-8 mt-8">
+    <div className="glass-card mt-8 p-8">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-2">
+      <div className="mb-2 flex items-center gap-3">
         <div
-          className="w-10 h-10 rounded-xl flex items-center justify-center text-lg"
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-lg"
           style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}
         >
           🤖
@@ -67,22 +67,22 @@ export default function AiAssistant({ insights }: AiAssistantProps) {
       </div>
 
       {/* Summary */}
-      <div className="mt-5 rounded-xl p-4 border border-emerald-200/40 dark:border-emerald-800/40 bg-emerald-50/40 dark:bg-emerald-900/15">
-        <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed">
+      <div className="mt-5 rounded-xl border border-emerald-200/40 bg-emerald-50/40 p-4 dark:border-emerald-800/40 dark:bg-emerald-900/15">
+        <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
           {insights.summary}
         </p>
       </div>
 
       {/* Recommendation cards */}
-      <div className="grid gap-3 md:grid-cols-2 mt-6 mb-8">
+      <div className="mt-6 mb-8 grid gap-3 md:grid-cols-2">
         {insights.recommendations.map((rec, idx) => (
           <div
             key={idx}
-            className="group p-4 rounded-xl bg-slate-50/60 dark:bg-slate-800/40 border border-slate-200/40 dark:border-slate-700/40 hover:border-emerald-300/60 dark:hover:border-emerald-700/60 transition-all duration-300 hover:shadow-md hover:shadow-emerald-500/5"
+            className="group rounded-xl border border-slate-200/40 bg-slate-50/60 p-4 transition-all duration-300 hover:border-emerald-300/60 hover:shadow-md hover:shadow-emerald-500/5 dark:border-slate-700/40 dark:bg-slate-800/40 dark:hover:border-emerald-700/60"
           >
-            <div className="flex justify-between items-start mb-2.5">
+            <div className="mb-2.5 flex items-start justify-between">
               <span
-                className="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider"
+                className="rounded-lg px-2.5 py-1 text-[10px] font-bold tracking-wider uppercase"
                 style={{
                   background:
                     "linear-gradient(135deg, rgba(5,150,105,0.15), rgba(16,185,129,0.15))",
@@ -92,10 +92,10 @@ export default function AiAssistant({ insights }: AiAssistantProps) {
                 {rec.category}
               </span>
             </div>
-            <p className="text-sm text-slate-700 dark:text-slate-300 mb-3 leading-relaxed">
+            <p className="mb-3 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
               {rec.action}
             </p>
-            <p className="text-emerald-600 dark:text-emerald-400 font-bold text-sm flex items-center gap-1.5">
+            <p className="flex items-center gap-1.5 text-sm font-bold text-emerald-600 dark:text-emerald-400">
               <span className="text-base">↓</span>
               Save ~{rec.estimated_annual_savings_kg.toLocaleString()} kg CO₂e/yr
             </p>
@@ -104,19 +104,19 @@ export default function AiAssistant({ insights }: AiAssistantProps) {
       </div>
 
       {/* Chat interface */}
-      <div className="border-t border-slate-200/40 dark:border-slate-700/40 pt-6">
-        <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4">
+      <div className="border-t border-slate-200/40 pt-6 dark:border-slate-700/40">
+        <h3 className="mb-4 text-sm font-semibold tracking-wider text-slate-500 uppercase dark:text-slate-400">
           Chat with your Carbon Assistant
         </h3>
 
         <div
-          className="rounded-xl h-64 overflow-y-auto p-4 mb-4 space-y-3 bg-slate-50/50 dark:bg-slate-800/30 border border-slate-200/30 dark:border-slate-700/30"
+          className="mb-4 h-64 space-y-3 overflow-y-auto rounded-xl border border-slate-200/30 bg-slate-50/50 p-4 dark:border-slate-700/30 dark:bg-slate-800/30"
           aria-live="polite"
         >
           {messages.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full text-center">
-              <span className="text-3xl mb-2">💬</span>
-              <p className="text-slate-400 dark:text-slate-500 text-sm italic">
+            <div className="flex h-full flex-col items-center justify-center text-center">
+              <span className="mb-2 text-3xl">💬</span>
+              <p className="text-sm text-slate-400 italic dark:text-slate-500">
                 Ask me anything about reducing your carbon footprint!
               </p>
             </div>
@@ -129,8 +129,8 @@ export default function AiAssistant({ insights }: AiAssistantProps) {
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm ${
                   msg.role === "user"
-                    ? "text-white rounded-br-md"
-                    : "bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/40 dark:border-slate-700/40 text-slate-700 dark:text-slate-200 rounded-bl-md shadow-sm"
+                    ? "rounded-br-md text-white"
+                    : "rounded-bl-md border border-slate-200/40 bg-white/80 text-slate-700 shadow-sm backdrop-blur-sm dark:border-slate-700/40 dark:bg-slate-800/80 dark:text-slate-200"
                 }`}
                 style={
                   msg.role === "user"
@@ -143,11 +143,11 @@ export default function AiAssistant({ insights }: AiAssistantProps) {
             </div>
           ))}
           {isTyping && (
-            <div className="flex justify-start animate-fade-in">
-              <div className="bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/40 dark:border-slate-700/40 rounded-2xl rounded-bl-md px-4 py-3 shadow-sm flex items-center gap-1.5">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" />
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce [animation-delay:100ms]" />
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce [animation-delay:200ms]" />
+            <div className="animate-fade-in flex justify-start">
+              <div className="flex items-center gap-1.5 rounded-2xl rounded-bl-md border border-slate-200/40 bg-white/80 px-4 py-3 shadow-sm backdrop-blur-sm dark:border-slate-700/40 dark:bg-slate-800/80">
+                <div className="h-2 w-2 animate-bounce rounded-full bg-emerald-400" />
+                <div className="h-2 w-2 animate-bounce rounded-full bg-emerald-400 [animation-delay:100ms]" />
+                <div className="h-2 w-2 animate-bounce rounded-full bg-emerald-400 [animation-delay:200ms]" />
               </div>
             </div>
           )}
@@ -167,7 +167,7 @@ export default function AiAssistant({ insights }: AiAssistantProps) {
           <button
             type="submit"
             disabled={isTyping || !input.trim()}
-            className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100"
+            className="rounded-xl px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-emerald-500/30 active:scale-[0.98] disabled:opacity-40 disabled:hover:scale-100"
             style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}
           >
             Send

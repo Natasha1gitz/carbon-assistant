@@ -26,12 +26,31 @@ const eslintConfig = [
     "next/typescript",
     "plugin:jsx-a11y/recommended",
     "plugin:security/recommended-legacy",
-    "plugin:sonarjs/recommended-legacy"
+    "plugin:sonarjs/recommended-legacy",
+    "plugin:jsdoc/recommended-typescript-error"
   ),
   {
     rules: {
       "security/detect-object-injection": "off",
       "sonarjs/no-nested-conditional": "off",
+      "jsdoc/require-param-type": "off",
+      "jsdoc/require-returns-type": "off",
+      "jsdoc/require-param-description": "off",
+      "jsdoc/require-returns": "off",
+    },
+  },
+  {
+    files: [
+      "src/components/**/*.tsx",
+      "src/app/**/*.tsx",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "src/hooks/**/*.ts",
+    ],
+    rules: {
+      "jsdoc/require-jsdoc": "off",
+      "jsdoc/require-param": "off",
+      "jsdoc/require-returns": "off",
     },
   },
 ];

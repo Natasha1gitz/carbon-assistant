@@ -17,7 +17,10 @@ import type {
 } from "./validators";
 import * as F from "./factors";
 
-/** Annual transport emissions from car, transit, and flights. */
+/**
+ * Annual transport emissions from car, transit, and flights.
+ * @param t
+ */
 function transportAnnualKg(t: TransportInput): number {
   const car = t.car_km_per_week * F.WEEKS_PER_YEAR * F.CAR_FACTORS_PER_KM[t.car_fuel];
   const transit =
@@ -28,7 +31,10 @@ function transportAnnualKg(t: TransportInput): number {
   return car + transit + flights;
 }
 
-/** Annual home energy emissions, split per-person in the household. */
+/**
+ * Annual home energy emissions, split per-person in the household.
+ * @param h
+ */
 function homeAnnualKg(h: HomeInput): number {
   const electricity =
     h.electricity_kwh_per_month * F.MONTHS_PER_YEAR * F.ELECTRICITY_PER_KWH;
@@ -36,14 +42,20 @@ function homeAnnualKg(h: HomeInput): number {
   return (electricity + gas) / h.household_size;
 }
 
-/** Annual consumption emissions from goods spending and waste. */
+/**
+ * Annual consumption emissions from goods spending and waste.
+ * @param c
+ */
 function consumptionAnnualKg(c: ConsumptionInput): number {
   const goods = c.goods_spend_usd_per_month * F.MONTHS_PER_YEAR * F.GOODS_PER_USD_MONTHLY;
   const waste = c.waste_kg_per_week * F.WEEKS_PER_YEAR * F.WASTE_PER_KG;
   return goods + waste;
 }
 
-/** Compute the annual carbon footprint breakdown for a set of inputs. */
+/**
+ * Compute the annual carbon footprint breakdown for a set of inputs.
+ * @param data
+ */
 export function calculateFootprint(data: CarbonInput): FootprintResult {
   const breakdown: Record<string, number> = {
     transport: round(transportAnnualKg(data.transport)),
@@ -69,7 +81,11 @@ export function calculateFootprint(data: CarbonInput): FootprintResult {
   };
 }
 
-/** Round to N decimal places (default 2). */
+/**
+ * Round to N decimal places (default 2).
+ * @param value
+ * @param decimals
+ */
 function round(value: number, decimals = 2): number {
   const factor = Math.pow(10, decimals);
   return Math.round(value * factor) / factor;

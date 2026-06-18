@@ -50,11 +50,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
       >
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-emerald-600 text-white p-2 rounded z-50"
+          className="sr-only z-50 rounded bg-emerald-600 p-2 text-white focus:not-sr-only focus:absolute focus:top-4 focus:left-4"
         >
           Skip to main content
         </a>
@@ -71,13 +71,13 @@ export default function RootLayout({
 
         {/* Decorative floating particles */}
         <div
-          className="fixed inset-0 pointer-events-none overflow-hidden -z-10"
+          className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
           aria-hidden="true"
         >
-          <div className="absolute top-20 left-10 w-3 h-3 rounded-full bg-emerald-400/20 animate-float" />
-          <div className="absolute top-40 right-20 w-2 h-2 rounded-full bg-teal-400/15 animate-float-delayed" />
-          <div className="absolute bottom-40 left-1/4 w-4 h-4 rounded-full bg-emerald-300/10 animate-float-slow" />
-          <div className="absolute top-1/3 right-1/3 w-2 h-2 rounded-full bg-green-400/20 animate-float" />
+          <div className="animate-float absolute top-20 left-10 h-3 w-3 rounded-full bg-emerald-400/20" />
+          <div className="animate-float-delayed absolute top-40 right-20 h-2 w-2 rounded-full bg-teal-400/15" />
+          <div className="animate-float-slow absolute bottom-40 left-1/4 h-4 w-4 rounded-full bg-emerald-300/10" />
+          <div className="animate-float absolute top-1/3 right-1/3 h-2 w-2 rounded-full bg-green-400/20" />
         </div>
 
         {/* Premium gradient header */}
@@ -89,22 +89,22 @@ export default function RootLayout({
             className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDE4YzEuNjU3IDAgMy0xLjM0MyAzLTNzLTEuMzQzLTMtMy0zLTMgMS4zNDMtMyAzIDEuMzQzIDMgMyAzem0xMiAxMmMxLjY1NyAwIDMtMS4zNDMgMy0zcy0xLjM0My0zLTMtMy0zIDEuMzQzLTMgMyAxLjM0MyAzIDMgM3oiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-50"
             aria-hidden="true"
           />
-          <div className="relative max-w-5xl mx-auto px-4 py-5 flex justify-between items-center">
+          <div className="relative mx-auto flex max-w-5xl items-center justify-between px-4 py-5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white/15 backdrop-blur-sm flex items-center justify-center text-xl shadow-lg">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-xl shadow-lg backdrop-blur-sm">
                 🌍
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white tracking-tight">
+                <h1 className="text-xl font-bold tracking-tight text-white">
                   Carbon Footprint Assistant
                 </h1>
-                <p className="text-emerald-100/90 text-xs font-medium tracking-wide hidden sm:block">
+                <p className="hidden text-xs font-medium tracking-wide text-emerald-100/90 sm:block">
                   Understand · Track · Reduce
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-sm text-emerald-100 text-xs font-medium border border-white/10">
+              <span className="rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-medium text-emerald-100 backdrop-blur-sm">
                 Powered by Gemini AI
               </span>
             </div>
@@ -114,13 +114,13 @@ export default function RootLayout({
         <main
           id="main-content"
           tabIndex={-1}
-          className="max-w-5xl mx-auto px-4 py-8 md:py-12 outline-none focus:outline-none"
+          className="mx-auto max-w-5xl px-4 py-8 outline-none focus:outline-none md:py-12"
         >
           {children}
         </main>
 
-        <footer className="border-t border-slate-200/50 dark:border-slate-800/50 mt-16">
-          <div className="max-w-5xl mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-2">
+        <footer className="mt-16 border-t border-slate-200/50 dark:border-slate-800/50">
+          <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-4 py-6 sm:flex-row">
             <p className="text-xs text-slate-500 dark:text-slate-400">
               Estimates are for awareness and education — not regulatory accounting.
             </p>

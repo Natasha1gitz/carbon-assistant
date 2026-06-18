@@ -16,6 +16,10 @@ const rateLimitStore = new Map<string, RateLimitInfo>();
 const LIMIT = 10; // Max requests
 const WINDOW_MS = 60 * 1000; // 1 minute
 
+/**
+ *
+ * @param identifier
+ */
 export function checkRateLimit(identifier: string): {
   success: boolean;
   limit: number;

@@ -53,17 +53,17 @@ export default class ErrorBoundary extends Component<
       }
 
       return (
-        <div role="alert" className="glass-card p-8 text-center max-w-md mx-auto mt-16">
-          <div className="text-4xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">
+        <div role="alert" className="glass-card mx-auto mt-16 max-w-md p-8 text-center">
+          <div className="mb-4 text-4xl">⚠️</div>
+          <h2 className="mb-2 text-xl font-bold text-slate-800 dark:text-slate-100">
             Something went wrong
           </h2>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
+          <p className="mb-6 text-sm text-slate-500 dark:text-slate-400">
             An unexpected error occurred. Please try refreshing the page.
           </p>
           <button
             onClick={() => this.setState({ hasError: false, error: null })}
-            className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30"
+            className="rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:shadow-emerald-500/30"
             style={{
               background: "linear-gradient(135deg, #059669, #10b981)",
             }}

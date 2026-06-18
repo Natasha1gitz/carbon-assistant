@@ -7,6 +7,9 @@ const analyzeBundle = withBundleAnalyzer({
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  experimental: {
+    reactCompiler: true,
+  },
   async headers() {
     return [
       {

@@ -101,7 +101,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-xl mx-auto glass-card p-8">
+    <form onSubmit={handleSubmit} className="glass-card mx-auto max-w-xl p-8">
       <div aria-live="polite" className="sr-only">
         {isSubmitting
           ? "Calculating your carbon footprint..."
@@ -110,7 +110,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
 
       {/* Premium Step Indicator */}
       <div
-        className="flex items-center justify-between mb-8 px-2"
+        className="mb-8 flex items-center justify-between px-2"
         aria-label="Form Progress"
         role="navigation"
       >
@@ -120,22 +120,22 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
               type="button"
               onClick={() => setStep(s.num)}
               className={`flex flex-col items-center gap-1 transition-all duration-300 ${
-                step >= s.num ? "opacity-100 scale-100" : "opacity-40 scale-95"
+                step >= s.num ? "scale-100 opacity-100" : "scale-95 opacity-40"
               }`}
             >
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all duration-500 ${
+                className={`flex h-10 w-10 items-center justify-center rounded-xl text-lg transition-all duration-500 ${
                   step === s.num
-                    ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/25 scale-110"
+                    ? "scale-110 bg-emerald-500 text-white shadow-lg shadow-emerald-500/25"
                     : step > s.num
-                      ? "bg-emerald-100 dark:bg-emerald-900/40 text-emerald-600 dark:text-emerald-300"
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-400"
+                      ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300"
+                      : "bg-slate-100 text-slate-400 dark:bg-slate-800"
                 }`}
               >
                 {step > s.num ? "✓" : s.icon}
               </div>
               <span
-                className={`text-xs font-medium hidden sm:block ${
+                className={`hidden text-xs font-medium sm:block ${
                   step === s.num
                     ? "text-emerald-600 dark:text-emerald-400"
                     : "text-slate-400"
@@ -146,7 +146,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
             </button>
             {i < STEP_LABELS.length - 1 && (
               <div
-                className={`flex-1 h-0.5 mx-2 rounded-full transition-all duration-700 ${
+                className={`mx-2 h-0.5 flex-1 rounded-full transition-all duration-700 ${
                   step > s.num ? "progress-active" : "bg-slate-200 dark:bg-slate-700"
                 }`}
               />
@@ -158,15 +158,15 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
       <div className="min-h-[320px]">
         {/* ── Step 1: Transport ────────────────────────── */}
         {step === 1 && (
-          <fieldset className="space-y-5 animate-fade-in">
-            <legend className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-5">
+          <fieldset className="animate-fade-in space-y-5">
+            <legend className="mb-5 text-xl font-bold text-slate-800 dark:text-slate-100">
               🚗 Transport
             </legend>
 
             <div className="flex flex-col">
               <label
                 htmlFor="car_km"
-                className="mb-1.5 font-medium text-sm text-slate-600 dark:text-slate-300"
+                className="mb-1.5 text-sm font-medium text-slate-600 dark:text-slate-300"
               >
                 Car distance per week (km)
               </label>
@@ -183,7 +183,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
                 aria-describedby={errors.car_km_per_week ? "car_km_err" : undefined}
               />
               {errors.car_km_per_week && (
-                <span id="car_km_err" className="text-red-500 text-sm mt-1">
+                <span id="car_km_err" className="mt-1 text-sm text-red-500">
                   {errors.car_km_per_week}
                 </span>
               )}
@@ -192,7 +192,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
             <div className="flex flex-col">
               <label
                 htmlFor="car_fuel"
-                className="mb-1.5 font-medium text-sm text-slate-600 dark:text-slate-300"
+                className="mb-1.5 text-sm font-medium text-slate-600 dark:text-slate-300"
               >
                 Car fuel type
               </label>
@@ -213,7 +213,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
             <div className="flex flex-col">
               <label
                 htmlFor="transit_km"
-                className="mb-1.5 font-medium text-sm text-slate-600 dark:text-slate-300"
+                className="mb-1.5 text-sm font-medium text-slate-600 dark:text-slate-300"
               >
                 Public transit per week (km)
               </label>
@@ -234,7 +234,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
               <div className="flex flex-col">
                 <label
                   htmlFor="short_flights"
-                  className="mb-1.5 font-medium text-sm text-slate-600 dark:text-slate-300"
+                  className="mb-1.5 text-sm font-medium text-slate-600 dark:text-slate-300"
                 >
                   Short-haul flights/yr
                 </label>
@@ -253,7 +253,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
               <div className="flex flex-col">
                 <label
                   htmlFor="long_flights"
-                  className="mb-1.5 font-medium text-sm text-slate-600 dark:text-slate-300"
+                  className="mb-1.5 text-sm font-medium text-slate-600 dark:text-slate-300"
                 >
                   Long-haul flights/yr
                 </label>
@@ -275,15 +275,15 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
 
         {/* ── Step 2: Home Energy ─────────────────────── */}
         {step === 2 && (
-          <fieldset className="space-y-5 animate-fade-in">
-            <legend className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-5">
+          <fieldset className="animate-fade-in space-y-5">
+            <legend className="mb-5 text-xl font-bold text-slate-800 dark:text-slate-100">
               🏠 Home Energy
             </legend>
 
             <div className="flex flex-col">
               <label
                 htmlFor="elec_kwh"
-                className="mb-1.5 font-medium text-sm text-slate-600 dark:text-slate-300"
+                className="mb-1.5 text-sm font-medium text-slate-600 dark:text-slate-300"
               >
                 Electricity per month (kWh)
               </label>
@@ -303,7 +303,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
             <div className="flex flex-col">
               <label
                 htmlFor="gas_kwh"
-                className="mb-1.5 font-medium text-sm text-slate-600 dark:text-slate-300"
+                className="mb-1.5 text-sm font-medium text-slate-600 dark:text-slate-300"
               >
                 Natural gas per month (kWh)
               </label>
@@ -323,7 +323,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
             <div className="flex flex-col">
               <label
                 htmlFor="household"
-                className="mb-1.5 font-medium text-sm text-slate-600 dark:text-slate-300"
+                className="mb-1.5 text-sm font-medium text-slate-600 dark:text-slate-300"
               >
                 People in household
               </label>
@@ -344,18 +344,18 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
 
         {/* ── Step 3: Diet ────────────────────────────── */}
         {step === 3 && (
-          <fieldset className="space-y-5 animate-fade-in">
-            <legend className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-5">
+          <fieldset className="animate-fade-in space-y-5">
+            <legend className="mb-5 text-xl font-bold text-slate-800 dark:text-slate-100">
               🥗 Diet
             </legend>
             <div className="flex flex-col space-y-2.5">
               {DIET_OPTIONS.map((opt) => (
                 <label
                   key={opt.value}
-                  className={`flex items-center gap-3 p-3.5 rounded-xl cursor-pointer transition-all duration-300 border ${
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition-all duration-300 ${
                     diet === opt.value
-                      ? "border-emerald-400 bg-emerald-50/60 dark:bg-emerald-900/20 shadow-sm shadow-emerald-500/10"
-                      : "border-slate-200/60 dark:border-slate-700/60 hover:border-emerald-300/60 hover:bg-emerald-50/30 dark:hover:bg-emerald-900/10"
+                      ? "border-emerald-400 bg-emerald-50/60 shadow-sm shadow-emerald-500/10 dark:bg-emerald-900/20"
+                      : "border-slate-200/60 hover:border-emerald-300/60 hover:bg-emerald-50/30 dark:border-slate-700/60 dark:hover:bg-emerald-900/10"
                   }`}
                 >
                   <input
@@ -364,10 +364,10 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
                     value={opt.value}
                     checked={diet === opt.value}
                     onChange={(e) => setDiet(e.target.value)}
-                    className="w-4 h-4 text-emerald-600 focus:ring-emerald-500"
+                    className="h-4 w-4 text-emerald-600 focus:ring-emerald-500"
                   />
                   <span className="text-lg">{opt.icon}</span>
-                  <span className="font-medium text-sm text-slate-700 dark:text-slate-200">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
                     {opt.label}
                   </span>
                 </label>
@@ -378,15 +378,15 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
 
         {/* ── Step 4: Consumption ─────────────────────── */}
         {step === 4 && (
-          <fieldset className="space-y-5 animate-fade-in">
-            <legend className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-5">
+          <fieldset className="animate-fade-in space-y-5">
+            <legend className="mb-5 text-xl font-bold text-slate-800 dark:text-slate-100">
               🛍️ Consumption & Waste
             </legend>
 
             <div className="flex flex-col">
               <label
                 htmlFor="goods_spend"
-                className="mb-1.5 font-medium text-sm text-slate-600 dark:text-slate-300"
+                className="mb-1.5 text-sm font-medium text-slate-600 dark:text-slate-300"
               >
                 Goods spending per month (USD)
               </label>
@@ -406,7 +406,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
             <div className="flex flex-col">
               <label
                 htmlFor="waste_kg"
-                className="mb-1.5 font-medium text-sm text-slate-600 dark:text-slate-300"
+                className="mb-1.5 text-sm font-medium text-slate-600 dark:text-slate-300"
               >
                 Waste per week (kg)
               </label>
@@ -427,12 +427,12 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-between mt-8 pt-6 border-t border-slate-200/40 dark:border-slate-700/40">
+      <div className="mt-8 flex justify-between border-t border-slate-200/40 pt-6 dark:border-slate-700/40">
         <button
           type="button"
           onClick={handlePrev}
           disabled={step === 1 || isSubmitting}
-          className="px-5 py-2.5 rounded-xl text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100/60 dark:hover:bg-slate-800/60 disabled:opacity-30 transition-all duration-300"
+          className="rounded-xl px-5 py-2.5 text-sm font-medium text-slate-500 transition-all duration-300 hover:bg-slate-100/60 hover:text-slate-700 disabled:opacity-30 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-200"
         >
           ← Back
         </button>
@@ -441,7 +441,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
           <button
             type="button"
             onClick={handleNext}
-            className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98] focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            className="rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-emerald-500/30 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 active:scale-[0.98]"
             style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}
           >
             Next →
@@ -450,7 +450,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white transition-all duration-300 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            className="rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-emerald-500/30 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 active:scale-[0.98] disabled:opacity-70"
             style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}
           >
             {isSubmitting ? "Calculating..." : "Calculate Footprint →"}

@@ -19,7 +19,12 @@ if (getApps().length === 0) {
   }
 }
 
-/** Persist a footprint entry for the anonymous device. */
+/**
+ * Persist a footprint entry for the anonymous device.
+ * @param userId
+ * @param data
+ * @param result
+ */
 export async function saveFootprintResult(
   userId: string,
   data: CarbonInput,
@@ -51,7 +56,10 @@ interface StoredEntry {
   result: FootprintResult;
 }
 
-/** Return the user's footprint history, newest first. */
+/**
+ * Return the user's footprint history, newest first.
+ * @param userId
+ */
 export async function getFootprintHistory(userId: string): Promise<StoredEntry[]> {
   if (!userId) return [];
 

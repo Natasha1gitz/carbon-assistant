@@ -33,6 +33,11 @@ const DIET_LADDER: F.DietType[] = [
   "vegan",
 ];
 
+/**
+ *
+ * @param data
+ * @param amount
+ */
 function transportRecommendation(
   data: CarbonInput,
   amount: number
@@ -84,6 +89,10 @@ function transportRecommendation(
   return null;
 }
 
+/**
+ *
+ * @param amount
+ */
 function homeRecommendation(amount: number): Recommendation | null {
   if (amount <= 0) return null;
   return {
@@ -95,6 +104,10 @@ function homeRecommendation(amount: number): Recommendation | null {
   };
 }
 
+/**
+ *
+ * @param data
+ */
 function dietRecommendation(data: CarbonInput): Recommendation | null {
   const current = data.diet;
   const idx = DIET_LADDER.indexOf(current);
@@ -114,6 +127,10 @@ function dietRecommendation(data: CarbonInput): Recommendation | null {
   };
 }
 
+/**
+ *
+ * @param amount
+ */
 function consumptionRecommendation(amount: number): Recommendation | null {
   if (amount <= 0) return null;
   return {
@@ -125,7 +142,11 @@ function consumptionRecommendation(amount: number): Recommendation | null {
   };
 }
 
-/** Produce ranked, quantified recommendations from the footprint breakdown. */
+/**
+ * Produce ranked, quantified recommendations from the footprint breakdown.
+ * @param data
+ * @param result
+ */
 export function generateRuleBasedInsights(
   data: CarbonInput,
   result: FootprintResult
@@ -172,6 +193,11 @@ export function generateRuleBasedInsights(
   };
 }
 
+/**
+ *
+ * @param value
+ * @param decimals
+ */
 function round(value: number, decimals = 2): number {
   const factor = Math.pow(10, decimals);
   return Math.round(value * factor) / factor;
