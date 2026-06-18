@@ -1,6 +1,7 @@
 "use client";
 
 import React, { Component, type ErrorInfo, type ReactNode } from "react";
+import { logger } from "@/lib/logger";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -38,15 +39,18 @@ export default class ErrorBoundary extends Component<
     return { hasError: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    // In production, send to an error reporting service (e.g. Sentry)
-    // instead of logging to the console.
+  public override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    // In a production app, log this to an error reporting service like Sentry
+    logger.error(
+      { err: error.message, stack: errorInfo.componentStack },
+      "Uncaught error"
+    );
     if (process.env.NODE_ENV !== "production") {
       console.error("ErrorBoundary caught an error:", error, errorInfo);
     }
   }
 
-  render(): ReactNode {
+  public override render(): ReactNode {
     if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback;

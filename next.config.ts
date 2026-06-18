@@ -7,11 +7,21 @@ const analyzeBundle = withBundleAnalyzer({
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  reactStrictMode: true,
   experimental: {
     reactCompiler: true,
   },
   async headers() {
     return [
+      {
+        source: "/_next/static/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
       {
         source: "/(.*)",
         headers: [

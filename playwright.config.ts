@@ -5,7 +5,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  /* Opt out of parallel tests on CI. */
+  ...(process.env.CI ? { workers: 1 } : {}),
+  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: "html",
   use: {
     baseURL: "http://localhost:3000",
