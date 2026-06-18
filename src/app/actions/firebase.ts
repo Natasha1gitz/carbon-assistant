@@ -21,9 +21,9 @@ if (getApps().length === 0) {
 
 /**
  * Persist a footprint entry for the anonymous device.
- * @param userId
- * @param data
- * @param result
+ * @param userId - The anonymous Firebase user ID.
+ * @param data - The validated carbon input from the form.
+ * @param result - The computed footprint result to store.
  */
 export async function saveFootprintResult(
   userId: string,
@@ -58,7 +58,7 @@ interface StoredEntry {
 
 /**
  * Return the user's footprint history, newest first.
- * @param userId
+ * @param userId - The anonymous Firebase user ID.
  */
 export async function getFootprintHistory(userId: string): Promise<StoredEntry[]> {
   if (!userId) return [];

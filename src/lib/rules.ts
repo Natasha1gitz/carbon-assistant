@@ -16,27 +16,28 @@ import type {
   Recommendation,
 } from "./validators";
 import * as F from "./factors";
+import { round } from "./utils";
 
-// Achievable reduction shares behind each recommendation's savings estimate.
+/** Achievable reduction share behind each recommendation's savings estimate. */
 const FLIGHT_REDUCTION_SHARE = 0.5;
 const HOME_ENERGY_REDUCTION_SHARE = 0.33;
 const CONSUMPTION_REDUCTION_SHARE = 0.25;
 const GENERIC_TRANSPORT_REDUCTION_SHARE = 0.2;
 
-// Diet types ordered from highest to lowest annual footprint.
-const DIET_LADDER: F.DietType[] = [
+/** Diet types ordered from highest to lowest annual footprint. */
+const DIET_LADDER: readonly F.DietType[] = [
   "heavy_meat",
   "medium_meat",
   "low_meat",
   "pescatarian",
   "vegetarian",
   "vegan",
-];
+] as const;
 
 /**
- *
- * @param data
- * @param amount
+ * Build a transport-specific recommendation targeting the largest sub-source.
+ * @param data - The full carbon input profile.
+ * @param amount - Annual transport emissions in kg CO2e.
  */
 function transportRecommendation(
   data: CarbonInput,
@@ -65,7 +66,7 @@ function transportRecommendation(
     const currentCar = carKmYear * F.CAR_FACTORS_PER_KM[t.car_fuel];
     const electricCar = carKmYear * F.CAR_FACTORS_PER_KM.electric;
     const saving = round(currentCar - electricCar);
-    /* istanbul ignore next */
+    /* v8 ignore next 7 -- defensive guard for edge-case parity */
     if (saving > 0) {
       return {
         category: "transport",
@@ -90,8 +91,8 @@ function transportRecommendation(
 }
 
 /**
- *
- * @param amount
+ * Build a home energy recommendation when home emissions are positive.
+ * @param amount - Annual home energy emissions in kg CO2e.
  */
 function homeRecommendation(amount: number): Recommendation | null {
   if (amount <= 0) return null;
@@ -105,8 +106,8 @@ function homeRecommendation(amount: number): Recommendation | null {
 }
 
 /**
- *
- * @param data
+ * Build a diet recommendation suggesting the next step down the diet ladder.
+ * @param data - The full carbon input profile.
  */
 function dietRecommendation(data: CarbonInput): Recommendation | null {
   const current = data.diet;
@@ -114,10 +115,10 @@ function dietRecommendation(data: CarbonInput): Recommendation | null {
   if (idx < 0 || idx >= DIET_LADDER.length - 1) return null;
 
   const target = DIET_LADDER[idx + 1];
-  /* istanbul ignore next */
+  /* v8 ignore next -- defensive guard, unreachable after bounds check */
   if (!target) return null;
   const saving = round(F.DIET_ANNUAL_KG[current] - F.DIET_ANNUAL_KG[target]);
-  /* istanbul ignore next */
+  /* v8 ignore next -- defensive guard for data integrity */
   if (saving <= 0) return null;
 
   return {
@@ -128,8 +129,8 @@ function dietRecommendation(data: CarbonInput): Recommendation | null {
 }
 
 /**
- *
- * @param amount
+ * Build a consumption recommendation when consumption emissions are positive.
+ * @param amount - Annual consumption emissions in kg CO2e.
  */
 function consumptionRecommendation(amount: number): Recommendation | null {
   if (amount <= 0) return null;
@@ -144,8 +145,8 @@ function consumptionRecommendation(amount: number): Recommendation | null {
 
 /**
  * Produce ranked, quantified recommendations from the footprint breakdown.
- * @param data
- * @param result
+ * @param data - The full carbon input profile.
+ * @param result - The computed footprint result.
  */
 export function generateRuleBasedInsights(
   data: CarbonInput,
@@ -164,7 +165,7 @@ export function generateRuleBasedInsights(
   const recommendations: Recommendation[] = [];
   for (const [category, amount] of ranked) {
     const builder = builders[category];
-    /* istanbul ignore next */
+    /* v8 ignore next -- defensive guard for unknown categories */
     if (!builder) continue;
     const rec = builder(amount);
     if (rec) recommendations.push(rec);
@@ -191,14 +192,4 @@ export function generateRuleBasedInsights(
     recommendations: recommendations.slice(0, 4),
     source: "rules",
   };
-}
-
-/**
- *
- * @param value
- * @param decimals
- */
-function round(value: number, decimals = 2): number {
-  const factor = Math.pow(10, decimals);
-  return Math.round(value * factor) / factor;
 }

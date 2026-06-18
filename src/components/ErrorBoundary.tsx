@@ -40,14 +40,10 @@ export default class ErrorBoundary extends Component<
   }
 
   public override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    // In a production app, log this to an error reporting service like Sentry
     logger.error(
       { err: error.message, stack: errorInfo.componentStack },
       "Uncaught error"
     );
-    if (process.env.NODE_ENV !== "production") {
-      console.error("ErrorBoundary caught an error:", error, errorInfo);
-    }
   }
 
   public override render(): ReactNode {

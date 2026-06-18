@@ -6,19 +6,25 @@
  * from abuse or DoS by limiting requests per IP/user session.
  */
 
+/** Tracks the request count and window reset time for a single identifier. */
 interface RateLimitInfo {
   count: number;
   resetAt: number;
 }
 
+/** In-memory store mapping identifiers to their rate limit state. */
 const rateLimitStore = new Map<string, RateLimitInfo>();
 
-const LIMIT = 10; // Max requests
-const WINDOW_MS = 60 * 1000; // 1 minute
+/** Maximum number of requests allowed per window. */
+const LIMIT = 10;
+
+/** Duration of the sliding window in milliseconds (1 minute). */
+const WINDOW_MS = 60 * 1000;
 
 /**
- *
- * @param identifier
+ * Check whether the given identifier has exceeded the rate limit.
+ * Increments the request count and returns the current limit state.
+ * @param identifier - A unique key such as an IP address or user ID.
  */
 export function checkRateLimit(identifier: string): {
   success: boolean;

@@ -28,7 +28,7 @@ const nextConfig: NextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://firestore.googleapis.com https://generativelanguage.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com;",
+              "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://firestore.googleapis.com https://generativelanguage.googleapis.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com;",
           },
           {
             key: "X-Frame-Options",

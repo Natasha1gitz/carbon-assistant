@@ -14,11 +14,11 @@ import dynamic from "next/dynamic";
 
 const AiAssistant = dynamic(() => import("@/components/AiAssistant"), {
   loading: () => <p className="text-center text-slate-400">Loading AI Assistant...</p>,
-  ssr: false, // Offload Gemini client logic to client-side only
+  ssr: false,
 });
 
 const HistoryPanel = dynamic(() => import("@/components/HistoryPanel"), {
-  ssr: false, // User history relies on client-side state
+  ssr: false,
 });
 
 interface HistoryEntry {
@@ -38,11 +38,9 @@ export default function ClientCarbonApp() {
     async (input: CarbonInput) => {
       setError(null);
       try {
-        // 1. Calculate Footprint (pure, deterministic, no I/O)
         const footprint = calculateFootprint(input);
         setResult(footprint);
 
-        // 2. Save to Firestore (fire and forget)
         if (userId) {
           saveFootprintResult(userId, input, footprint)
             .then((res) => {
@@ -60,7 +58,6 @@ export default function ClientCarbonApp() {
             });
         }
 
-        // 3. Generate AI Insights (Gemini with rule-based fallback)
         const aiInsights = await generateInsights(input, footprint);
         setInsights(aiInsights);
       } catch {
@@ -70,9 +67,13 @@ export default function ClientCarbonApp() {
     [userId]
   );
 
+  const handleRecalculate = useCallback(() => {
+    setResult(null);
+    setInsights(null);
+  }, []);
+
   return (
     <>
-      {/* Global error alert — always visible regardless of view state */}
       {error && (
         <div
           role="alert"
@@ -83,7 +84,6 @@ export default function ClientCarbonApp() {
         </div>
       )}
 
-      {/* Screen-reader status announcement */}
       <p role="status" className="sr-only">
         {result
           ? "Your footprint results and personalized insights are ready below."
@@ -144,10 +144,7 @@ export default function ClientCarbonApp() {
 
             <div className="mt-10 border-t border-slate-200/50 pt-8 text-center dark:border-slate-800/50">
               <button
-                onClick={() => {
-                  setResult(null);
-                  setInsights(null);
-                }}
+                onClick={handleRecalculate}
                 className="group rounded-xl border border-slate-200/50 bg-slate-100 px-8 py-3 text-sm font-semibold text-slate-700 transition-all duration-300 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-700 dark:border-slate-700/50 dark:bg-slate-800 dark:text-slate-300 dark:hover:border-emerald-700 dark:hover:bg-emerald-900/30 dark:hover:text-emerald-300"
               >
                 ← Recalculate

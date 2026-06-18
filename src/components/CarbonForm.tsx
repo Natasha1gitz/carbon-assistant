@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useReducer, useCallback, memo } from "react";
 import type { CarbonInput } from "@/lib/validators";
 import { CarbonInputSchema } from "@/lib/validators";
 
@@ -31,81 +31,146 @@ const STEP_LABELS = [
   { num: 4, icon: "🛍️", label: "Consumption" },
 ] as const;
 
-export default function CarbonForm({ onSubmit }: CarbonFormProps) {
-  const [step, setStep] = useState(1);
-  const totalSteps = 4;
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const TOTAL_STEPS = 4;
+const FIRST_STEP = 1;
 
-  // Transport
-  const [carKm, setCarKm] = useState<number | "">("");
-  const [carFuel, setCarFuel] = useState<string>("petrol");
-  const [transitKm, setTransitKm] = useState<number | "">("");
-  const [shortFlights, setShortFlights] = useState<number | "">("");
-  const [longFlights, setLongFlights] = useState<number | "">("");
+/** Consolidated form state managed by useReducer for efficiency. */
+interface FormState {
+  step: number;
+  errors: Record<string, string>;
+  isSubmitting: boolean;
+  carKm: number | "";
+  carFuel: string;
+  transitKm: number | "";
+  shortFlights: number | "";
+  longFlights: number | "";
+  electricityKwh: number | "";
+  gasKwh: number | "";
+  householdSize: number | "";
+  diet: string;
+  goodsSpend: number | "";
+  wasteKg: number | "";
+}
 
-  // Home
-  const [electricityKwh, setElectricityKwh] = useState<number | "">("");
-  const [gasKwh, setGasKwh] = useState<number | "">("");
-  const [householdSize, setHouseholdSize] = useState<number | "">(1);
+type FormAction =
+  | { type: "SET_STEP"; step: number }
+  | { type: "SET_FIELD"; field: keyof FormState; value: number | "" | string }
+  | { type: "SET_ERRORS"; errors: Record<string, string> }
+  | { type: "SET_SUBMITTING"; isSubmitting: boolean };
 
-  // Diet
-  const [diet, setDiet] = useState<string>("medium_meat");
+const initialState: FormState = {
+  step: 1,
+  errors: {},
+  isSubmitting: false,
+  carKm: "",
+  carFuel: "petrol",
+  transitKm: "",
+  shortFlights: "",
+  longFlights: "",
+  electricityKwh: "",
+  gasKwh: "",
+  householdSize: 1,
+  diet: "medium_meat",
+  goodsSpend: "",
+  wasteKg: "",
+};
 
-  // Consumption
-  const [goodsSpend, setGoodsSpend] = useState<number | "">("");
-  const [wasteKg, setWasteKg] = useState<number | "">("");
+function formReducer(state: FormState, action: FormAction): FormState {
+  switch (action.type) {
+    case "SET_STEP":
+      return { ...state, step: action.step };
+    case "SET_FIELD":
+      return { ...state, [action.field]: action.value };
+    case "SET_ERRORS":
+      return { ...state, errors: action.errors };
+    case "SET_SUBMITTING":
+      return { ...state, isSubmitting: action.isSubmitting };
+    default:
+      return state;
+  }
+}
 
-  const handleNext = () => setStep((s) => Math.min(s + 1, totalSteps));
-  const handlePrev = () => setStep((s) => Math.max(s - 1, 1));
+function CarbonForm({ onSubmit }: CarbonFormProps) {
+  const [state, dispatch] = useReducer(formReducer, initialState);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleNext = useCallback(
+    () => dispatch({ type: "SET_STEP", step: Math.min(state.step + 1, TOTAL_STEPS) }),
+    [state.step]
+  );
+  const handlePrev = useCallback(
+    () => dispatch({ type: "SET_STEP", step: Math.max(state.step - 1, FIRST_STEP) }),
+    [state.step]
+  );
 
-    const raw = {
-      transport: {
-        car_km_per_week: Number(carKm),
-        car_fuel: carFuel,
-        public_transit_km_per_week: Number(transitKm),
-        short_haul_flights_per_year: Number(shortFlights),
-        long_haul_flights_per_year: Number(longFlights),
+  const handleNumberChange = useCallback(
+    (field: keyof FormState) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      dispatch({
+        type: "SET_FIELD",
+        field,
+        value: e.target.value === "" ? "" : Number(e.target.value),
+      });
+    },
+    []
+  );
+
+  const handleStringChange = useCallback(
+    (field: keyof FormState) =>
+      (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        dispatch({ type: "SET_FIELD", field, value: e.target.value });
       },
-      home: {
-        electricity_kwh_per_month: Number(electricityKwh),
-        natural_gas_kwh_per_month: Number(gasKwh),
-        household_size: Number(householdSize) || 1,
-      },
-      diet,
-      consumption: {
-        goods_spend_usd_per_month: Number(goodsSpend),
-        waste_kg_per_week: Number(wasteKg),
-      },
-    };
+    []
+  );
 
-    const result = CarbonInputSchema.safeParse(raw);
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
 
-    if (!result.success) {
-      const fieldErrors = result.error.flatten().fieldErrors;
-      const newErrors: Record<string, string> = {};
-      for (const [key, value] of Object.entries(fieldErrors)) {
-        const first = value?.[0];
-        if (first) newErrors[key] = first;
+      const raw = {
+        transport: {
+          car_km_per_week: Number(state.carKm),
+          car_fuel: state.carFuel,
+          public_transit_km_per_week: Number(state.transitKm),
+          short_haul_flights_per_year: Number(state.shortFlights),
+          long_haul_flights_per_year: Number(state.longFlights),
+        },
+        home: {
+          electricity_kwh_per_month: Number(state.electricityKwh),
+          natural_gas_kwh_per_month: Number(state.gasKwh),
+          household_size: Number(state.householdSize) || 1,
+        },
+        diet: state.diet,
+        consumption: {
+          goods_spend_usd_per_month: Number(state.goodsSpend),
+          waste_kg_per_week: Number(state.wasteKg),
+        },
+      };
+
+      const result = CarbonInputSchema.safeParse(raw);
+
+      if (!result.success) {
+        const fieldErrors = result.error.flatten().fieldErrors;
+        const newErrors: Record<string, string> = {};
+        for (const [key, value] of Object.entries(fieldErrors)) {
+          const first = value?.[0];
+          if (first) newErrors[key] = first;
+        }
+        dispatch({ type: "SET_ERRORS", errors: newErrors });
+        return;
       }
-      setErrors(newErrors);
-      return;
-    }
 
-    setErrors({});
-    setIsSubmitting(true);
-    onSubmit(result.data);
-  };
+      dispatch({ type: "SET_ERRORS", errors: {} });
+      dispatch({ type: "SET_SUBMITTING", isSubmitting: true });
+      onSubmit(result.data);
+    },
+    [state, onSubmit]
+  );
 
   return (
     <form onSubmit={handleSubmit} className="glass-card mx-auto max-w-xl p-8">
       <div aria-live="polite" className="sr-only">
-        {isSubmitting
+        {state.isSubmitting
           ? "Calculating your carbon footprint..."
-          : `Step ${step} of ${totalSteps}`}
+          : `Step ${state.step} of ${TOTAL_STEPS}`}
       </div>
 
       {/* Premium Step Indicator */}
@@ -118,25 +183,25 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
           <React.Fragment key={s.num}>
             <button
               type="button"
-              onClick={() => setStep(s.num)}
+              onClick={() => dispatch({ type: "SET_STEP", step: s.num })}
               className={`flex flex-col items-center gap-1 transition-all duration-300 ${
-                step >= s.num ? "scale-100 opacity-100" : "scale-95 opacity-40"
+                state.step >= s.num ? "scale-100 opacity-100" : "scale-95 opacity-40"
               }`}
             >
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-xl text-lg transition-all duration-500 ${
-                  step === s.num
+                  state.step === s.num
                     ? "scale-110 bg-emerald-500 text-white shadow-lg shadow-emerald-500/25"
-                    : step > s.num
+                    : state.step > s.num
                       ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300"
                       : "bg-slate-100 text-slate-400 dark:bg-slate-800"
                 }`}
               >
-                {step > s.num ? "✓" : s.icon}
+                {state.step > s.num ? "✓" : s.icon}
               </div>
               <span
                 className={`hidden text-xs font-medium sm:block ${
-                  step === s.num
+                  state.step === s.num
                     ? "text-emerald-600 dark:text-emerald-400"
                     : "text-slate-400"
                 }`}
@@ -147,7 +212,9 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
             {i < STEP_LABELS.length - 1 && (
               <div
                 className={`mx-2 h-0.5 flex-1 rounded-full transition-all duration-700 ${
-                  step > s.num ? "progress-active" : "bg-slate-200 dark:bg-slate-700"
+                  state.step > s.num
+                    ? "progress-active"
+                    : "bg-slate-200 dark:bg-slate-700"
                 }`}
               />
             )}
@@ -157,7 +224,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
 
       <div className="min-h-[320px]">
         {/* ── Step 1: Transport ────────────────────────── */}
-        {step === 1 && (
+        {state.step === 1 && (
           <fieldset className="animate-fade-in space-y-5">
             <legend className="mb-5 text-xl font-bold text-slate-800 dark:text-slate-100">
               🚗 Transport
@@ -175,16 +242,14 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
                 type="number"
                 min="0"
                 placeholder="e.g. 120"
-                value={carKm}
-                onChange={(e) =>
-                  setCarKm(e.target.value === "" ? "" : Number(e.target.value))
-                }
+                value={state.carKm}
+                onChange={handleNumberChange("carKm")}
                 className="premium-input"
-                aria-describedby={errors.car_km_per_week ? "car_km_err" : undefined}
+                aria-describedby={state.errors.car_km_per_week ? "car_km_err" : undefined}
               />
-              {errors.car_km_per_week && (
+              {state.errors.car_km_per_week && (
                 <span id="car_km_err" className="mt-1 text-sm text-red-500">
-                  {errors.car_km_per_week}
+                  {state.errors.car_km_per_week}
                 </span>
               )}
             </div>
@@ -198,8 +263,8 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
               </label>
               <select
                 id="car_fuel"
-                value={carFuel}
-                onChange={(e) => setCarFuel(e.target.value)}
+                value={state.carFuel}
+                onChange={handleStringChange("carFuel")}
                 className="premium-input cursor-pointer"
               >
                 {FUEL_OPTIONS.map((f) => (
@@ -222,10 +287,8 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
                 type="number"
                 min="0"
                 placeholder="e.g. 30"
-                value={transitKm}
-                onChange={(e) =>
-                  setTransitKm(e.target.value === "" ? "" : Number(e.target.value))
-                }
+                value={state.transitKm}
+                onChange={handleNumberChange("transitKm")}
                 className="premium-input"
               />
             </div>
@@ -243,10 +306,8 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
                   type="number"
                   min="0"
                   placeholder="0"
-                  value={shortFlights}
-                  onChange={(e) =>
-                    setShortFlights(e.target.value === "" ? "" : Number(e.target.value))
-                  }
+                  value={state.shortFlights}
+                  onChange={handleNumberChange("shortFlights")}
                   className="premium-input"
                 />
               </div>
@@ -262,10 +323,8 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
                   type="number"
                   min="0"
                   placeholder="0"
-                  value={longFlights}
-                  onChange={(e) =>
-                    setLongFlights(e.target.value === "" ? "" : Number(e.target.value))
-                  }
+                  value={state.longFlights}
+                  onChange={handleNumberChange("longFlights")}
                   className="premium-input"
                 />
               </div>
@@ -274,7 +333,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
         )}
 
         {/* ── Step 2: Home Energy ─────────────────────── */}
-        {step === 2 && (
+        {state.step === 2 && (
           <fieldset className="animate-fade-in space-y-5">
             <legend className="mb-5 text-xl font-bold text-slate-800 dark:text-slate-100">
               🏠 Home Energy
@@ -292,10 +351,8 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
                 type="number"
                 min="0"
                 placeholder="e.g. 300"
-                value={electricityKwh}
-                onChange={(e) =>
-                  setElectricityKwh(e.target.value === "" ? "" : Number(e.target.value))
-                }
+                value={state.electricityKwh}
+                onChange={handleNumberChange("electricityKwh")}
                 className="premium-input"
               />
             </div>
@@ -312,10 +369,8 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
                 type="number"
                 min="0"
                 placeholder="e.g. 150"
-                value={gasKwh}
-                onChange={(e) =>
-                  setGasKwh(e.target.value === "" ? "" : Number(e.target.value))
-                }
+                value={state.gasKwh}
+                onChange={handleNumberChange("gasKwh")}
                 className="premium-input"
               />
             </div>
@@ -332,10 +387,8 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
                 type="number"
                 min="1"
                 max="50"
-                value={householdSize}
-                onChange={(e) =>
-                  setHouseholdSize(e.target.value === "" ? "" : Number(e.target.value))
-                }
+                value={state.householdSize}
+                onChange={handleNumberChange("householdSize")}
                 className="premium-input"
               />
             </div>
@@ -343,7 +396,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
         )}
 
         {/* ── Step 3: Diet ────────────────────────────── */}
-        {step === 3 && (
+        {state.step === 3 && (
           <fieldset className="animate-fade-in space-y-5">
             <legend className="mb-5 text-xl font-bold text-slate-800 dark:text-slate-100">
               🥗 Diet
@@ -353,7 +406,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
                 <label
                   key={opt.value}
                   className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition-all duration-300 ${
-                    diet === opt.value
+                    state.diet === opt.value
                       ? "border-emerald-400 bg-emerald-50/60 shadow-sm shadow-emerald-500/10 dark:bg-emerald-900/20"
                       : "border-slate-200/60 hover:border-emerald-300/60 hover:bg-emerald-50/30 dark:border-slate-700/60 dark:hover:bg-emerald-900/10"
                   }`}
@@ -362,8 +415,8 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
                     type="radio"
                     name="diet"
                     value={opt.value}
-                    checked={diet === opt.value}
-                    onChange={(e) => setDiet(e.target.value)}
+                    checked={state.diet === opt.value}
+                    onChange={handleStringChange("diet")}
                     className="h-4 w-4 text-emerald-600 focus:ring-emerald-500"
                   />
                   <span className="text-lg">{opt.icon}</span>
@@ -377,7 +430,7 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
         )}
 
         {/* ── Step 4: Consumption ─────────────────────── */}
-        {step === 4 && (
+        {state.step === 4 && (
           <fieldset className="animate-fade-in space-y-5">
             <legend className="mb-5 text-xl font-bold text-slate-800 dark:text-slate-100">
               🛍️ Consumption & Waste
@@ -395,10 +448,8 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
                 type="number"
                 min="0"
                 placeholder="e.g. 200"
-                value={goodsSpend}
-                onChange={(e) =>
-                  setGoodsSpend(e.target.value === "" ? "" : Number(e.target.value))
-                }
+                value={state.goodsSpend}
+                onChange={handleNumberChange("goodsSpend")}
                 className="premium-input"
               />
             </div>
@@ -415,10 +466,8 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
                 type="number"
                 min="0"
                 placeholder="e.g. 5"
-                value={wasteKg}
-                onChange={(e) =>
-                  setWasteKg(e.target.value === "" ? "" : Number(e.target.value))
-                }
+                value={state.wasteKg}
+                onChange={handleNumberChange("wasteKg")}
                 className="premium-input"
               />
             </div>
@@ -431,13 +480,13 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
         <button
           type="button"
           onClick={handlePrev}
-          disabled={step === 1 || isSubmitting}
+          disabled={state.step === FIRST_STEP || state.isSubmitting}
           className="rounded-xl px-5 py-2.5 text-sm font-medium text-slate-500 transition-all duration-300 hover:bg-slate-100/60 hover:text-slate-700 disabled:opacity-30 dark:text-slate-400 dark:hover:bg-slate-800/60 dark:hover:text-slate-200"
         >
           ← Back
         </button>
 
-        {step < totalSteps ? (
+        {state.step < TOTAL_STEPS ? (
           <button
             type="button"
             onClick={handleNext}
@@ -449,14 +498,16 @@ export default function CarbonForm({ onSubmit }: CarbonFormProps) {
         ) : (
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={state.isSubmitting}
             className="rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/20 transition-all duration-300 hover:scale-[1.02] hover:shadow-emerald-500/30 focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 active:scale-[0.98] disabled:opacity-70"
             style={{ background: "linear-gradient(135deg, #059669, #10b981)" }}
           >
-            {isSubmitting ? "Calculating..." : "Calculate Footprint →"}
+            {state.isSubmitting ? "Calculating..." : "Calculate Footprint →"}
           </button>
         )}
       </div>
     </form>
   );
 }
+
+export default memo(CarbonForm);

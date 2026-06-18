@@ -1,3 +1,10 @@
+/**
+ * Type-safe environment variable configuration.
+ *
+ * All environment variables are validated at build time using Zod schemas,
+ * ensuring runtime type safety and failing fast on misconfiguration.
+ * Validation is skipped in CI and test environments.
+ */
 import { createEnv } from "@t3-oss/env-nextjs";
 import { z } from "zod";
 

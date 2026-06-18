@@ -16,10 +16,11 @@ import type {
   Comparison,
 } from "./validators";
 import * as F from "./factors";
+import { round } from "./utils";
 
 /**
  * Annual transport emissions from car, transit, and flights.
- * @param t
+ * @param t - The user's transport input data.
  */
 function transportAnnualKg(t: TransportInput): number {
   const car = t.car_km_per_week * F.WEEKS_PER_YEAR * F.CAR_FACTORS_PER_KM[t.car_fuel];
@@ -33,7 +34,7 @@ function transportAnnualKg(t: TransportInput): number {
 
 /**
  * Annual home energy emissions, split per-person in the household.
- * @param h
+ * @param h - The user's home energy input data.
  */
 function homeAnnualKg(h: HomeInput): number {
   const electricity =
@@ -44,7 +45,7 @@ function homeAnnualKg(h: HomeInput): number {
 
 /**
  * Annual consumption emissions from goods spending and waste.
- * @param c
+ * @param c - The user's consumption input data.
  */
 function consumptionAnnualKg(c: ConsumptionInput): number {
   const goods = c.goods_spend_usd_per_month * F.MONTHS_PER_YEAR * F.GOODS_PER_USD_MONTHLY;
@@ -54,7 +55,7 @@ function consumptionAnnualKg(c: ConsumptionInput): number {
 
 /**
  * Compute the annual carbon footprint breakdown for a set of inputs.
- * @param data
+ * @param data - Validated carbon input from the form.
  */
 export function calculateFootprint(data: CarbonInput): FootprintResult {
   const breakdown: Record<string, number> = {
@@ -79,14 +80,4 @@ export function calculateFootprint(data: CarbonInput): FootprintResult {
     total_annual_tonnes: round(total / 1000, 3),
     comparison,
   };
-}
-
-/**
- * Round to N decimal places (default 2).
- * @param value
- * @param decimals
- */
-function round(value: number, decimals = 2): number {
-  const factor = Math.pow(10, decimals);
-  return Math.round(value * factor) / factor;
 }

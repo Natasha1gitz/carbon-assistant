@@ -1,3 +1,10 @@
+/**
+ * Firebase client SDK initialization for the browser.
+ *
+ * Uses the public Firebase configuration from environment variables
+ * and exports the auth instance and anonymous sign-in helper.
+ * Initialization is idempotent — safe to import from multiple modules.
+ */
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, signInAnonymously } from "firebase/auth";
 

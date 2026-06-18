@@ -1,8 +1,12 @@
 "use server";
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
-import type { CarbonInput, InsightsResponse, Recommendation } from "@/lib/validators";
-import { CarbonInputSchema, FootprintResultSchema } from "@/lib/validators";
+import type { CarbonInput, InsightsResponse } from "@/lib/validators";
+import {
+  CarbonInputSchema,
+  FootprintResultSchema,
+  InsightsResponseSchema,
+} from "@/lib/validators";
 import type { FootprintResult } from "@/lib/validators";
 import { generateRuleBasedInsights } from "@/lib/rules";
 import { logger } from "@/lib/logger";
@@ -14,7 +18,11 @@ import { LRUCache } from "lru-cache";
 const apiKey = env.GEMINI_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
-// World-class efficiency: Cache identical carbon profiles in memory to reduce 3000ms API latency to 0ms.
+/**
+ * In-memory LRU cache for Gemini insights responses.
+ * Caching identical carbon profiles avoids redundant API calls,
+ * reducing latency from ~3000ms to 0ms for repeated profiles.
+ */
 const insightsCache = new LRUCache<string, InsightsResponse>({
   max: 5000,
   ttl: 1000 * 60 * 60 * 24, // 24 hours
@@ -22,8 +30,9 @@ const insightsCache = new LRUCache<string, InsightsResponse>({
 
 /**
  * Return personalized insights, preferring Gemini and falling back to rules.
- * @param data
- * @param result
+ * Performs server-side re-validation, rate limiting, and response caching.
+ * @param data - Validated carbon input from the client.
+ * @param result - The computed footprint result to analyze.
  */
 export async function generateInsights(
   data: CarbonInput,
@@ -41,7 +50,7 @@ export async function generateInsights(
   const cacheKey = JSON.stringify(validatedData.data);
   const cached = insightsCache.get(cacheKey);
   if (cached) {
-    logger.info("Cache hit for carbon profile insights, saving 3000ms of API latency.");
+    logger.info("Cache hit for carbon profile insights");
     return cached;
   }
 
@@ -91,23 +100,24 @@ Do not include any markdown formatting or extra text. Only return the JSON objec
       .replace(/```json/g, "")
       .replace(/```/g, "")
       .trim();
-    const payload = JSON.parse(cleanText) as {
-      summary: string;
-      recommendations: Recommendation[];
-    };
+    const rawPayload = JSON.parse(cleanText) as Record<string, unknown>;
 
-    if (!payload.recommendations || payload.recommendations.length === 0) {
-      throw new Error("Gemini returned no recommendations");
+    // Validate the AI response with Zod instead of unsafe type assertion
+    const validated = InsightsResponseSchema.safeParse({
+      summary: rawPayload.summary,
+      recommendations: Array.isArray(rawPayload.recommendations)
+        ? rawPayload.recommendations.slice(0, 4)
+        : [],
+      source: "gemini",
+    });
+
+    if (!validated.success) {
+      logger.warn("Gemini response failed schema validation, using rule-based fallback");
+      return generateRuleBasedInsights(data, result);
     }
 
-    const finalPayload = {
-      summary: payload.summary,
-      recommendations: payload.recommendations.slice(0, 4),
-      source: "gemini",
-    } as InsightsResponse;
-
-    insightsCache.set(cacheKey, finalPayload);
-    return finalPayload;
+    insightsCache.set(cacheKey, validated.data);
+    return validated.data;
   } catch (exc) {
     logger.error(
       { err: exc instanceof Error ? exc.message : String(exc) },
@@ -119,8 +129,9 @@ Do not include any markdown formatting or extra text. Only return the JSON objec
 
 /**
  * Continue a multi-turn chat with the AI assistant.
- * @param history
- * @param message
+ * Performs input sanitization and rate limiting before sending to Gemini.
+ * @param history - The conversation history for context.
+ * @param message - The user's new message to send.
  */
 export async function chatWithGemini(
   history: { role: string; parts: { text: string }[] }[],

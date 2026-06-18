@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback, memo } from "react";
 import type { InsightsResponse } from "@/lib/validators";
 import { chatWithGemini } from "@/app/actions/gemini";
 
@@ -8,7 +8,7 @@ interface AiAssistantProps {
   insights: InsightsResponse;
 }
 
-export default function AiAssistant({ insights }: AiAssistantProps) {
+function AiAssistant({ insights }: AiAssistantProps) {
   const [messages, setMessages] = useState<{ role: string; parts: { text: string }[] }[]>(
     []
   );
@@ -20,30 +20,33 @@ export default function AiAssistant({ insights }: AiAssistantProps) {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  const handleSend = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
+  const handleSend = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!input.trim()) return;
 
-    const userMsg = { role: "user", parts: [{ text: input }] };
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
-    setIsTyping(true);
+      const userMsg = { role: "user", parts: [{ text: input }] };
+      setMessages((prev) => [...prev, userMsg]);
+      setInput("");
+      setIsTyping(true);
 
-    try {
-      const responseText = await chatWithGemini(messages, input);
-      setMessages((prev) => [
-        ...prev,
-        { role: "model", parts: [{ text: responseText }] },
-      ]);
-    } catch {
-      setMessages((prev) => [
-        ...prev,
-        { role: "model", parts: [{ text: "Error connecting to AI." }] },
-      ]);
-    } finally {
-      setIsTyping(false);
-    }
-  };
+      try {
+        const responseText = await chatWithGemini(messages, input);
+        setMessages((prev) => [
+          ...prev,
+          { role: "model", parts: [{ text: responseText }] },
+        ]);
+      } catch {
+        setMessages((prev) => [
+          ...prev,
+          { role: "model", parts: [{ text: "Error connecting to AI." }] },
+        ]);
+      } finally {
+        setIsTyping(false);
+      }
+    },
+    [input, messages]
+  );
 
   return (
     <div className="glass-card mt-8 p-8">
@@ -177,3 +180,5 @@ export default function AiAssistant({ insights }: AiAssistantProps) {
     </div>
   );
 }
+
+export default memo(AiAssistant);

@@ -1,6 +1,4 @@
-"use client";
-
-import React from "react";
+import React, { memo } from "react";
 import type { FootprintResult } from "@/lib/validators";
 
 interface HistoryEntry {
@@ -13,7 +11,7 @@ interface HistoryPanelProps {
   entries: HistoryEntry[];
 }
 
-export default function HistoryPanel({ entries }: HistoryPanelProps) {
+function HistoryPanel({ entries }: HistoryPanelProps) {
   if (entries.length === 0) {
     return (
       <div className="glass-card mt-8 p-8">
@@ -137,3 +135,5 @@ export default function HistoryPanel({ entries }: HistoryPanelProps) {
     </div>
   );
 }
+
+export default memo(HistoryPanel);

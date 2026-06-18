@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, memo } from "react";
 import type { FootprintResult } from "@/lib/validators";
 
 interface DashboardProps {
@@ -12,9 +12,48 @@ const CATEGORY_COLORS = [
   { bar: "#0ea5e9", fill: "fill-sky-500", label: "Home", bg: "bg-sky-500" },
   { bar: "#f59e0b", fill: "fill-amber-500", label: "Diet", bg: "bg-amber-500" },
   { bar: "#f43f5e", fill: "fill-rose-500", label: "Consumption", bg: "bg-rose-500" },
-];
+] as const;
 
-export default function Dashboard({ result }: DashboardProps) {
+/** A single horizontal comparison bar with gradient fill and animation. */
+const ComparisonBar = memo(function ComparisonBar({
+  label,
+  value,
+  maxValue,
+  gradient,
+  mounted,
+}: {
+  label: string;
+  value: number;
+  maxValue: number;
+  gradient: string;
+  mounted: boolean;
+}) {
+  const widthPct = maxValue > 0 ? (value / maxValue) * 100 : 0;
+  const formattedValue = (value / 1000).toFixed(1);
+
+  return (
+    <div className="flex items-center gap-3">
+      <span className="w-24 shrink-0 text-right text-sm font-medium text-slate-500 dark:text-slate-400">
+        {label}
+      </span>
+      <div className="h-6 flex-1 overflow-hidden rounded-full bg-slate-100/70 dark:bg-slate-800/70">
+        <div
+          className={`bg-gradient-to-r ${gradient} relative h-full rounded-full transition-all duration-1000 ease-out`}
+          style={{ width: mounted ? `${widthPct}%` : "0%" }}
+        >
+          <span className="absolute top-1/2 right-2 -translate-y-1/2 text-[10px] font-bold text-white/90">
+            {mounted && widthPct > 15 ? `${formattedValue}t` : ""}
+          </span>
+        </div>
+      </div>
+      <span className="w-16 shrink-0 text-sm font-medium text-slate-500 tabular-nums dark:text-slate-400">
+        {formattedValue} t
+      </span>
+    </div>
+  );
+});
+
+function Dashboard({ result }: DashboardProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -22,10 +61,23 @@ export default function Dashboard({ result }: DashboardProps) {
     return () => clearTimeout(timer);
   }, []);
 
-  const categories = Object.entries(result.breakdown_kg);
-  const maxVal = Math.max(...categories.map(([, val]) => val));
+  // Memoize expensive derived computations
+  const categories = useMemo(
+    () => Object.entries(result.breakdown_kg),
+    [result.breakdown_kg]
+  );
+  const maxVal = useMemo(
+    () => Math.max(...categories.map(([, val]) => val)),
+    [categories]
+  );
   const totalKg = result.total_annual_kg;
   const { comparison } = result;
+
+  // Pre-compute the shared maxValue for comparison bars (avoids triple recomputation)
+  const comparisonMaxValue = useMemo(
+    () => Math.max(totalKg, comparison.global_average_annual_kg),
+    [totalKg, comparison.global_average_annual_kg]
+  );
 
   return (
     <div className="glass-card p-8">
@@ -78,31 +130,22 @@ export default function Dashboard({ result }: DashboardProps) {
         <div className="space-y-4">
           <ComparisonBar
             label="You"
-            value={result.total_annual_kg}
-            maxValue={Math.max(
-              result.total_annual_kg,
-              comparison.global_average_annual_kg
-            )}
+            value={totalKg}
+            maxValue={comparisonMaxValue}
             gradient="from-emerald-500 to-emerald-400"
             mounted={mounted}
           />
           <ComparisonBar
             label="Global Avg"
             value={comparison.global_average_annual_kg}
-            maxValue={Math.max(
-              result.total_annual_kg,
-              comparison.global_average_annual_kg
-            )}
+            maxValue={comparisonMaxValue}
             gradient="from-amber-500 to-amber-400"
             mounted={mounted}
           />
           <ComparisonBar
             label="2030 Target"
             value={comparison.sustainable_target_annual_kg}
-            maxValue={Math.max(
-              result.total_annual_kg,
-              comparison.global_average_annual_kg
-            )}
+            maxValue={comparisonMaxValue}
             gradient="from-sky-500 to-sky-400"
             mounted={mounted}
           />
@@ -229,39 +272,4 @@ export default function Dashboard({ result }: DashboardProps) {
   );
 }
 
-/** A single horizontal comparison bar with gradient fill and animation. */
-function ComparisonBar({
-  label,
-  value,
-  maxValue,
-  gradient,
-  mounted,
-}: {
-  label: string;
-  value: number;
-  maxValue: number;
-  gradient: string;
-  mounted: boolean;
-}) {
-  const widthPct = maxValue > 0 ? (value / maxValue) * 100 : 0;
-  return (
-    <div className="flex items-center gap-3">
-      <span className="w-24 shrink-0 text-right text-sm font-medium text-slate-500 dark:text-slate-400">
-        {label}
-      </span>
-      <div className="h-6 flex-1 overflow-hidden rounded-full bg-slate-100/70 dark:bg-slate-800/70">
-        <div
-          className={`bg-gradient-to-r ${gradient} relative h-full rounded-full transition-all duration-1000 ease-out`}
-          style={{ width: mounted ? `${widthPct}%` : "0%" }}
-        >
-          <span className="absolute top-1/2 right-2 -translate-y-1/2 text-[10px] font-bold text-white/90">
-            {mounted && widthPct > 15 ? `${(value / 1000).toFixed(1)}t` : ""}
-          </span>
-        </div>
-      </div>
-      <span className="w-16 shrink-0 text-sm font-medium text-slate-500 tabular-nums dark:text-slate-400">
-        {(value / 1000).toFixed(1)} t
-      </span>
-    </div>
-  );
-}
+export default memo(Dashboard);
