@@ -7,7 +7,12 @@ const analyzeBundle = withBundleAnalyzer({
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  poweredByHeader: false,
   reactStrictMode: true,
+  typedRoutes: true,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === "production",
+  },
   experimental: {
     reactCompiler: true,
     optimizePackageImports: ["@google/generative-ai", "zod", "lucide-react"],
