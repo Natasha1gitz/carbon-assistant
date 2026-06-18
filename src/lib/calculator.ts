@@ -57,7 +57,7 @@ function consumptionAnnualKg(c: ConsumptionInput): number {
  * Compute the annual carbon footprint breakdown for a set of inputs.
  * @param data - Validated carbon input from the form.
  */
-export function calculateFootprint(data: CarbonInput): FootprintResult {
+export function calculateFootprint(data: Readonly<CarbonInput>): FootprintResult {
   const breakdown: Record<string, number> = {
     transport: round(transportAnnualKg(data.transport)),
     home: round(homeAnnualKg(data.home)),

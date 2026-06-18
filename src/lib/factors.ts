@@ -19,10 +19,20 @@
  */
 
 // ─── Time Conversions ─────────────────────────────────────────────
+/**
+ * Number of weeks in a standard calendar year.
+ */
 export const WEEKS_PER_YEAR = 52;
+
+/**
+ * Number of months in a standard calendar year.
+ */
 export const MONTHS_PER_YEAR = 12;
 
 // ─── Car Fuel Types ───────────────────────────────────────────────
+/**
+ * Supported car fuel types for the transport calculation.
+ */
 export type CarFuel = "petrol" | "diesel" | "hybrid" | "electric";
 
 /**
@@ -70,6 +80,9 @@ export const ELECTRICITY_PER_KWH = 0.45;
 export const NATURAL_GAS_PER_KWH = 0.183;
 
 // ─── Diet ─────────────────────────────────────────────────────────
+/**
+ * Supported diet profiles, categorized by meat consumption intensity.
+ */
 export type DietType =
   | "heavy_meat"
   | "medium_meat"

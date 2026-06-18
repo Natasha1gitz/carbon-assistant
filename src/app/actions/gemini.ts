@@ -13,20 +13,52 @@ import { logger } from "@/lib/logger";
 import { checkRateLimit } from "@/lib/rate-limiter";
 import { headers } from "next/headers";
 import { env } from "@/env";
-import { LRUCache } from "lru-cache";
+import { unstable_cache } from "next/cache";
+import { getInsightsPrompt } from "@/lib/prompts";
 
 const apiKey = env.GEMINI_API_KEY;
 const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
+const CACHE_TTL_SECONDS = 60 * 60 * 24; // 24 hours
+
 /**
- * In-memory LRU cache for Gemini insights responses.
- * Caching identical carbon profiles avoids redundant API calls,
- * reducing latency from ~3000ms to 0ms for repeated profiles.
+ * Fetch insights from Gemini, isolated into a function suitable for Next.js unstable_cache.
+ * This utilizes the distributed Data Cache rather than an in-memory instance.
+ * @param prompt - The formatted prompt string to send to Gemini.
  */
-const insightsCache = new LRUCache<string, InsightsResponse>({
-  max: 5000,
-  ttl: 1000 * 60 * 60 * 24, // 24 hours
-});
+async function fetchGeminiInsights(prompt: string): Promise<InsightsResponse | null> {
+  if (!genAI) return null;
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const genResult = await model.generateContent(prompt);
+    const text = genResult.response.text();
+    const cleanText = text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+    const rawPayload = JSON.parse(cleanText) as Record<string, unknown>;
+
+    const validated = InsightsResponseSchema.safeParse({
+      summary: rawPayload.summary,
+      recommendations: Array.isArray(rawPayload.recommendations)
+        ? rawPayload.recommendations.slice(0, 4)
+        : [],
+      source: "gemini",
+    });
+
+    if (!validated.success) {
+      logger.warn("Gemini response failed schema validation");
+      return null;
+    }
+    return validated.data;
+  } catch (exc) {
+    logger.error(
+      { err: exc instanceof Error ? exc.message : String(exc) },
+      "Gemini insight generation failed"
+    );
+    return null;
+  }
+}
 
 /**
  * Return personalized insights, preferring Gemini and falling back to rules.
@@ -47,13 +79,6 @@ export async function generateInsights(
     return generateRuleBasedInsights(data, result);
   }
 
-  const cacheKey = JSON.stringify(validatedData.data);
-  const cached = insightsCache.get(cacheKey);
-  if (cached) {
-    logger.info("Cache hit for carbon profile insights");
-    return cached;
-  }
-
   if (!genAI) {
     return generateRuleBasedInsights(data, result);
   }
@@ -69,62 +94,31 @@ export async function generateInsights(
     return generateRuleBasedInsights(data, result);
   }
 
-  try {
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const prompt = getInsightsPrompt(
+    JSON.stringify(result.breakdown_kg),
+    result.total_annual_kg,
+    result.total_annual_tonnes,
+    result.comparison.sustainable_target_annual_kg,
+    data.diet,
+    data.transport.car_fuel
+  );
 
-    const prompt = `
-You are a concise, encouraging sustainability coach. Given a person's annual
-carbon footprint breakdown (kg CO2e), produce a short summary and 2-4 specific,
-realistic actions that target their largest emission sources. Each action must
-include an estimated annual saving in kg CO2e. Be practical and non-judgmental.
+  const cacheKey = JSON.stringify(validatedData.data);
 
-Carbon footprint breakdown (kg CO2e per year):
-${JSON.stringify(result.breakdown_kg)}
-Total: ${result.total_annual_kg} kg/yr (${result.total_annual_tonnes} t/yr).
-Sustainable target: ${result.comparison.sustainable_target_annual_kg} kg/yr.
-Diet: ${data.diet}. Car fuel: ${data.transport.car_fuel}.
+  // Wrap the fetch call with Next.js distributed caching
+  const getCachedInsights = unstable_cache(
+    async () => fetchGeminiInsights(prompt),
+    ["insights-cache", cacheKey],
+    { revalidate: CACHE_TTL_SECONDS }
+  );
 
-Respond strictly in JSON format with this structure:
-{
-  "summary": "string",
-  "recommendations": [
-    { "category": "string", "action": "string", "estimated_annual_savings_kg": number }
-  ]
-}
-Do not include any markdown formatting or extra text. Only return the JSON object.
-    `.trim();
+  const geminiResponse = await getCachedInsights();
 
-    const genResult = await model.generateContent(prompt);
-    const text = genResult.response.text();
-    const cleanText = text
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-    const rawPayload = JSON.parse(cleanText) as Record<string, unknown>;
-
-    // Validate the AI response with Zod instead of unsafe type assertion
-    const validated = InsightsResponseSchema.safeParse({
-      summary: rawPayload.summary,
-      recommendations: Array.isArray(rawPayload.recommendations)
-        ? rawPayload.recommendations.slice(0, 4)
-        : [],
-      source: "gemini",
-    });
-
-    if (!validated.success) {
-      logger.warn("Gemini response failed schema validation, using rule-based fallback");
-      return generateRuleBasedInsights(data, result);
-    }
-
-    insightsCache.set(cacheKey, validated.data);
-    return validated.data;
-  } catch (exc) {
-    logger.error(
-      { err: exc instanceof Error ? exc.message : String(exc) },
-      "Gemini insight generation failed, using rule-based fallback"
-    );
-    return generateRuleBasedInsights(data, result);
+  if (geminiResponse) {
+    return geminiResponse;
   }
+
+  return generateRuleBasedInsights(data, result);
 }
 
 /**
@@ -144,6 +138,9 @@ export async function chatWithGemini(
     return "Please enter a message (max 2000 characters).";
   }
 
+  // Explicit HTML stripping for defense in depth (prevents XSS on output)
+  const sanitizedMessage = trimmed.replace(/<[^>]*>?/gm, "");
+
   if (!genAI) {
     return "I am currently running in offline mode. Please set the GEMINI_API_KEY environment variable to enable AI chat.";
   }
@@ -160,7 +157,7 @@ export async function chatWithGemini(
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
     const chat = model.startChat({ history });
-    const result = await chat.sendMessage(message);
+    const result = await chat.sendMessage(sanitizedMessage);
     return result.response.text();
   } catch (exc) {
     logger.error({ err: exc instanceof Error ? exc.message : String(exc) }, "Chat error");

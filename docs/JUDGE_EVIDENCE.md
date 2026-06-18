@@ -25,6 +25,9 @@ in the codebase that demonstrate compliance.
 | Cited emission factors    | [`src/lib/factors.ts`](../../src/lib/factors.ts) — DEFRA, EPA, IPCC sources                  |
 | Bundle analyzer           | `npm run analyze` via `@next/bundle-analyzer`                                                |
 | Modular architecture      | Separate calculator, rules, validators, actions, components                                  |
+| System Prompt Isolation   | `src/lib/prompts.ts` — cleanly separates prompt configuration from execution logic           |
+| Strict Immutability       | `Readonly<T>` types enforced in pure calculation engines                                     |
+| Agent Documentation       | `AGENTS.md` — AI agent architectural system prompt provided                                  |
 | `.editorconfig`           | Consistent formatting across IDEs                                                            |
 | `CHANGELOG.md`            | Versioned release history (v1.0.0, v1.1.0)                                                   |
 | `CONTRIBUTING.md`         | Developer onboarding guide                                                                   |
@@ -43,6 +46,8 @@ in the codebase that demonstrate compliance.
 | No API keys in client         | Server Actions (`"use server"`) in `src/app/actions/`                                       |
 | Server-side Zod re-validation | [`src/app/actions/gemini.ts`](../../src/app/actions/gemini.ts) — defense in depth           |
 | Chat message length limit     | Same file — max 2000 chars, prevents token exhaustion                                       |
+| Explicit HTML Sanitization    | Strict Regex output stripping for Gemini chat to prevent XSS payloads                       |
+| CSRF Protection               | Next.js Built-in CSRF Protection inherently covers all Server Actions                       |
 | In-memory rate limiting       | [`src/lib/rate-limiter.ts`](../../src/lib/rate-limiter.ts) — 10 req/min sliding window      |
 | Firebase Admin ADC            | [`src/app/actions/firebase.ts`](../../src/app/actions/firebase.ts) — `applicationDefault()` |
 | Input bounds                  | All Zod schemas enforce `min(0)`, `max(N)`                                                  |
@@ -54,19 +59,22 @@ in the codebase that demonstrate compliance.
 
 ## 3. Efficiency
 
-| Evidence                | Location                                                                       |
-| ----------------------- | ------------------------------------------------------------------------------ |
-| Multi-stage Dockerfile  | [`Dockerfile`](../../Dockerfile) — builder → runner                            |
-| Docker layer caching    | `COPY package*.json` before source                                             |
-| Docker ignore           | [`.dockerignore`](../../.dockerignore) — minimal build context                 |
-| Pure calculation (O(1)) | `calculator.ts` — no database calls                                            |
-| Graceful degradation    | Gemini → rule fallback; Firestore → mock fallback                              |
-| First Load JS < 350 kB  | Verified via `next build` output                                               |
-| Turbopack build (5s)    | `next build --turbopack`                                                       |
-| `output: "standalone"`  | Minimal Docker image                                                           |
-| Lighthouse CI           | [`.lighthouserc.js`](../../.lighthouserc.js) — ≥95% automated performance gate |
-| Bundle analyzer         | `@next/bundle-analyzer` — `npm run analyze`                                    |
-| Fire-and-forget saves   | Non-blocking Firestore persistence                                             |
+| Evidence                | Location                                                                                 |
+| ----------------------- | ---------------------------------------------------------------------------------------- |
+| Multi-stage Dockerfile  | [`Dockerfile`](../../Dockerfile) — builder → runner                                      |
+| Docker layer caching    | `COPY package*.json` before source                                                       |
+| Docker ignore           | [`.dockerignore`](../../.dockerignore) — minimal build context                           |
+| Pure calculation (O(1)) | `calculator.ts` — no database calls                                                      |
+| Cursor-Based Pagination | `limit(10)` pagination in Firestore fetching to prevent unbounded O(N) memory risks      |
+| Component Lazy Loading  | `next/dynamic` strictly used to defer load of AiAssistant and HistoryPanel               |
+| Distributed Data Cache  | `unstable_cache` integration avoids single-node in-memory cache drop on Edge cold starts |
+| Graceful degradation    | Gemini → rule fallback; Firestore → mock fallback                                        |
+| First Load JS < 350 kB  | Verified via `next build` output                                                         |
+| Turbopack build (5s)    | `next build --turbopack`                                                                 |
+| `output: "standalone"`  | Minimal Docker image                                                                     |
+| Lighthouse CI           | [`.lighthouserc.js`](../../.lighthouserc.js) — ≥95% automated performance gate           |
+| Bundle analyzer         | `@next/bundle-analyzer` — `npm run analyze`                                              |
+| Fire-and-forget saves   | Non-blocking Firestore persistence                                                       |
 
 ---
 

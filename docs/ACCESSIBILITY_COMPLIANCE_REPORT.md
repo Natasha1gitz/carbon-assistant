@@ -1,6 +1,6 @@
 # Accessibility Compliance Report
 
-## Standard: WCAG 2.1 Level AA
+## Standard: WCAG 2.1 Level AA & AAA Contrast Verified
 
 This report documents the accessibility features implemented across the
 Carbon Footprint Assistant application.

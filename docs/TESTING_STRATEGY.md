@@ -100,3 +100,4 @@ npx vitest run src/lib/calculator.test.ts
 2. **Rule engine always tested without Gemini** — Ensures the fallback path works.
 3. **Axe tests per component** — Catches accessibility regressions at the component level.
 4. **Zod tested independently** — Schema validation is a security boundary and needs dedicated coverage.
+5. **Mutation Testing Resilience** — Tests are designed to fail if underlying logic or boundary conditions mutate, proving tests assert behavior, not just code coverage lines.
