@@ -2,7 +2,8 @@
 import React from "react";
 import { render } from "@testing-library/react";
 import { axe } from "vitest-axe";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { act } from "@testing-library/react";
 import Dashboard from "./Dashboard";
 import type { FootprintResult } from "@/lib/validators";
 
@@ -24,14 +25,28 @@ const mockResult: FootprintResult = {
 };
 
 describe("Dashboard", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("should not have any accessibility violations", async () => {
     const { container } = render(<Dashboard result={mockResult} />);
+    act(() => {
+      vi.advanceTimersByTime(150);
+    });
+    vi.useRealTimers();
     const results = await axe(container);
     expect(results).toHaveNoViolations();
   });
 
   it("displays the total in tonnes", () => {
     const { container } = render(<Dashboard result={mockResult} />);
+    act(() => {
+      vi.advanceTimersByTime(150);
+    });
     expect(container.textContent).toContain("6");
     expect(container.textContent).toContain("t CO₂e / year");
   });
