@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   experimental: {
     reactCompiler: true,
+    optimizePackageImports: ["@google/generative-ai", "zod", "lucide-react"],
   },
   async headers() {
     return [
