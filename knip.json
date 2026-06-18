@@ -4,10 +4,10 @@
   "project": ["src/**/*.ts", "src/**/*.tsx"],
   "ignoreDependencies": [
     "eslint-config-next",
+    "eslint-plugin-jsdoc",
     "eslint-plugin-jsx-a11y",
     "eslint-plugin-security",
     "eslint-plugin-sonarjs",
-    "lint-staged",
     "pino-pretty",
     "tailwindcss"
   ]
