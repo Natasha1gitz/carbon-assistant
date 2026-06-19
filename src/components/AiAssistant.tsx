@@ -1,52 +1,30 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback, memo } from "react";
+import React, { useRef, useEffect, memo } from "react";
 import type { InsightsResponse } from "@/lib/validators";
-import { chatWithGemini } from "@/app/actions/gemini";
+import { useAiChat } from "@/hooks/useAiChat";
 
 interface AiAssistantProps {
   insights: InsightsResponse;
 }
 
-function AiAssistant({ insights }: AiAssistantProps) {
-  const [messages, setMessages] = useState<{ role: string; parts: { text: string }[] }[]>(
-    []
-  );
-  const [input, setInput] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+/**
+ * Renders the AI Assistant interface.
+ * @remarks
+ * This component delegates state management to `useAiChat` to minimize cyclomatic complexity.
+ * It renders the insights provided by the initial server action, and provides an interactive
+ * chat interface for follow-up questions.
+ * @param props - The insights response object containing recommendations and summaries.
+ * @returns A React functional component for the AI Chat interface.
+ */
+function AiAssistant(props: AiAssistantProps) {
+  const { insights } = props;
+  const { messages, input, setInput, isTyping, handleSend } = useAiChat();
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
-
-  const handleSend = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (!input.trim()) return;
-
-      const userMsg = { role: "user", parts: [{ text: input }] };
-      setMessages((prev) => [...prev, userMsg]);
-      setInput("");
-      setIsTyping(true);
-
-      try {
-        const responseText = await chatWithGemini(messages, input);
-        setMessages((prev) => [
-          ...prev,
-          { role: "model", parts: [{ text: responseText }] },
-        ]);
-      } catch {
-        setMessages((prev) => [
-          ...prev,
-          { role: "model", parts: [{ text: "Error connecting to AI." }] },
-        ]);
-      } finally {
-        setIsTyping(false);
-      }
-    },
-    [input, messages]
-  );
 
   return (
     <div className="glass-card mt-8 p-8">
