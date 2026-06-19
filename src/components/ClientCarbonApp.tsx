@@ -92,7 +92,7 @@ export default function ClientCarbonApp() {
 
       {loading ? (
         <div
-          className="animate-fade-in flex flex-col items-center justify-center p-16"
+          className="animate-fade-in mx-auto flex min-h-[500px] w-full max-w-3xl flex-col items-center justify-center p-16"
           aria-live="polite"
         >
           <div className="relative">
